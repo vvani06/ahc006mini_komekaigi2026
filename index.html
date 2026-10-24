@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2ecdf">
+<title>Food Delivery — 40件から8件の配達ゲーム</title>
+<style>
+  :root {
+    --bg: #f2ecdf;
+    --card: #fffdf8;
+    --card-2: #fbf6ec;
+    --ink: #26322f;
+    --muted: #827a6c;
+    --line: #e7dccb;
+    --accent: #e05b2b;
+    --accent-deep: #b8431b;
+    --accent-soft: #fbe4d8;
+    --teal: #1f7f72;
+    --teal-soft: #dceee9;
+    --gold: #d5a13f;
+    --shadow: 0 18px 44px -28px rgba(58, 42, 22, .5);
+    --ease: cubic-bezier(.22, .8, .25, 1);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background:
+      radial-gradient(900px 480px at 12% -10%, #fff9ea 0%, rgba(255, 249, 234, 0) 62%),
+      radial-gradient(700px 460px at 104% 2%, #f7e2ce 0%, rgba(247, 226, 206, 0) 58%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+
+  .app {
+    width: min(100%, 660px);
+    margin: 0 auto;
+    padding: max(14px, env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom));
+  }
+
+  /* ---------- header ---------- */
+  .hero { padding: 4px 2px 0; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: var(--muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    height: 21px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(224, 91, 43, .25);
+    color: var(--accent-deep);
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .08em;
+  }
+
+  h1 {
+    margin: 9px 0 0;
+    font-size: clamp(29px, 8vw, 38px);
+    line-height: 1.03;
+    letter-spacing: -.035em;
+    font-weight: 900;
+  }
+
+  h1 small {
+    display: inline-block;
+    margin-left: 7px;
+    padding: 4px 9px 5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .65);
+    color: var(--accent-deep);
+    font-size: .38em;
+    font-weight: 800;
+    letter-spacing: .02em;
+    vertical-align: .52em;
+    white-space: nowrap;
+  }
+
+  .lead {
+    margin: 8px 0 0;
+    max-width: 34em;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #676052;
+    font-weight: 500;
+  }
+
+  /* ---------- scoreboard ---------- */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: 1.02fr 1fr 1.08fr;
+    margin-top: 13px;
+    padding: 11px 2px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 253, 248, .9);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(6px);
+  }
+
+  .stat {
+    min-width: 0;
+    padding: 0 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat + .stat { border-left: 1px solid var(--line); }
+
+  .stat-label {
+    font-size: 9.5px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: .09em;
+    color: var(--muted);
+  }
+
+  .stat-value {
+    overflow: hidden;
+    font-size: clamp(20px, 5.6vw, 27px);
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .stat-value .unit {
+    margin-left: 2px;
+    font-size: .52em;
+    font-weight: 800;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  #scoreValue { color: var(--accent-deep); }
+  #scoreValue.is-muted { color: #b9ae9c; }
+
+  .stat-sub {
+    min-height: 13px;
+    overflow: hidden;
+    font-size: 9.5px;
+    line-height: 1.3;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- map ---------- */
+  .map-card {
+    position: relative;
+    margin-top: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: #fffcf5;
+    box-shadow: var(--shadow);
+    touch-action: manipulation;
+    isolation: isolate;
+  }
+
+  .map-card.is-complete {
+    box-shadow:
+      0 0 0 2px rgba(31, 127, 114, .26),
+      0 22px 46px -28px rgba(31, 127, 114, .5);
+  }
+
+  #map {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .grid-line {
+    stroke: #ece3d5;
+    stroke-width: 1;
+  }
+  .grid-line.major { stroke: #e3d7c5; }
+
+  .pair-link {
+    stroke: #bca98f;
+    stroke-width: 1.6;
+    stroke-dasharray: 5 7;
+    opacity: .22;
+    pointer-events: none;
+    transition: opacity .2s ease, stroke .2s ease;
+  }
+  .pair-link.is-picked { stroke: var(--accent); opacity: .48; }
+  .pair-link.is-done { stroke: var(--teal); opacity: .34; }
+  .pair-link.is-hovered,
+  .map-card.is-full .pair-link.is-hovered {
+    stroke: #c95127;
+    stroke-width: 2.7;
+    opacity: .95;
+  }
+
+  .route-halo,
+  .route-line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .route-halo {
+    stroke: #fffcf5;
+    stroke-width: 14;
+    opacity: .96;
+  }
+  .route-line {
+    stroke: var(--accent);
+    stroke-width: 4.6;
+  }
+  .map-card.is-complete .route-line { stroke: #d5532a; }
+
+  .office-house { fill: #fffcf5; }
+  .office-ring {
+    fill: none;
+    stroke: rgba(38, 50, 47, .12);
+    stroke-width: 2;
+  }
+
+  .marker {
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+
+  .shop-shape,
+  .drop-shape {
+    stroke: #fffdf8;
+    stroke-width: 2.6;
+    filter: drop-shadow(0 1.5px 1.5px rgba(62, 42, 22, .18));
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .16s var(--ease), filter .16s ease;
+  }
+  .shop-shape { fill: var(--accent); }
+  .drop-shape { fill: var(--teal); }
+
+  .marker.is-dim { opacity: .27; }
+  .marker.is-open { opacity: 1; }
+  .marker.is-target { opacity: 1; }
+  .marker.is-visited { opacity: 1; }
+
+  .map-card.is-full .marker.is-dim { opacity: .14; }
+  .map-card.is-full .pair-link { opacity: .12; }
+  .map-card.is-full .pair-link.is-picked { opacity: .38; }
+  .map-card.is-full .pair-link.is-hovered { opacity: .95; }
+
+  .marker.pickup.is-open .shop-shape {
+    filter: drop-shadow(0 0 5px rgba(224, 91, 43, .32));
+  }
+
+  .marker-num {
+    display: none;
+    fill: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+    user-select: none;
+  }
+  .marker.is-visited .marker-num { display: block; }
+
+  .halo {
+    fill: none;
+    stroke: var(--teal);
+    stroke-width: 2.4;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    pointer-events: none;
+  }
+  .marker.drop.is-target .halo {
+    animation: haloPulse 1.55s ease-out infinite;
+  }
+
+  @keyframes haloPulse {
+    0%   { transform: scale(.85); opacity: .7; }
+    72%  { transform: scale(1.65); opacity: 0; }
+    100% { transform: scale(1.65); opacity: 0; }
+  }
+
+  .marker.is-hovered,
+  .map-card.is-full .marker.is-hovered {
+    opacity: 1;
+  }
+
+  .marker.is-hovered .shop-shape,
+  .marker.is-hovered .drop-shape {
+    transform: scale(1.22);
+  }
+
+  .marker.pickup.is-hovered .shop-shape {
+    filter: drop-shadow(0 0 6px rgba(224, 91, 43, .55));
+  }
+
+  .marker.drop.is-hovered .drop-shape {
+    filter: drop-shadow(0 0 6px rgba(31, 127, 114, .55));
+  }
+
+  .marker.is-hovered .halo {
+    animation: none;
+    opacity: .68;
+    stroke-width: 2.8;
+    transform: scale(1.08);
+  }
+
+  .marker.is-hovered.is-target .halo { animation: none; }
+
+  .marker.pickup.is-hovered .halo { stroke: var(--accent); }
+  .marker.drop.is-hovered .halo { stroke: var(--teal); }
+
+  .map-card.is-hovering #map { cursor: pointer; }
+
+  .ripple {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    opacity: .8;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: rippleOut .52s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes rippleOut {
+    0%   { transform: scale(.4); opacity: .75; }
+    100% { transform: scale(3.4); opacity: 0; }
+  }
+
+  /* ---------- result ---------- */
+  .result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 10px 11px 10px 14px;
+    border: 1px solid rgba(31, 127, 114, .28);
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f2faf6 0%, #fffdf7 72%);
+    box-shadow: 0 14px 32px -24px rgba(31, 127, 114, .55);
+    animation: resultIn .38s var(--ease) both;
+  }
+
+  @keyframes resultIn {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  .result-main { min-width: 0; flex: 1; }
+
+  .result-kicker {
+    display: block;
+    margin-bottom: 1px;
+    color: var(--teal);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .13em;
+  }
+
+  .result-score {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    line-height: 1;
+  }
+
+  .result-score strong {
+    color: var(--accent-deep);
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-score span {
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .1em;
+  }
+
+  .result-best {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 9.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-btn {
+    flex: none;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--ink);
+    color: #fffcf5;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .08s ease, background .15s ease;
+  }
+  .result-btn:active { transform: scale(.96); background: #101917; }
+
+  /* ---------- legend / hint ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 7px 14px;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .key {
+    display: inline-block;
+    flex: none;
+  }
+  .key.shop {
+    width: 11px;
+    height: 11px;
+    border-radius: 3.5px;
+    background: var(--accent);
+  }
+  .key.drop {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .key.dash {
+    width: 17px;
+    height: 0;
+    border-top: 1.5px dashed #b9a78e;
+  }
+  .key.num {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #5e5548;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 16px;
+    text-align: center;
+  }
+  .key.office {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid #fffdf8;
+    box-shadow: 0 0 0 1px #cfc4b2;
+  }
+
+  .hint {
+    min-height: 47px;
+    margin: 11px 3px 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #4d493f;
+  }
+
+  .hint small {
+    display: block;
+    margin-top: 1px;
+    color: var(--muted);
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  /* ---------- controls ---------- */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.1fr;
+    gap: 8px;
+    margin-top: 9px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 49px;
+    padding: 0 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255, 253, 248, .94);
+    color: var(--ink);
+    box-shadow: 0 8px 18px -16px rgba(58, 42, 22, .65);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .08s ease, background .15s ease, opacity .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active {
+    transform: scale(.97);
+    background: #f6efe2;
+  }
+
+  .btn:disabled {
+    opacity: .32;
+    pointer-events: none;
+  }
+
+  .btn .glyph {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1;
+    transform: translateY(-.5px);
+  }
+
+  .btn.reset { color: #a34729; }
+
+  /* ---------- rules / footer ---------- */
+  .rules {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+    color: var(--muted);
+    font-size: 11.5px;
+    line-height: 1.7;
+  }
+
+  .rules summary {
+    color: #625c50;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    list-style: none;
+  }
+  .rules summary::-webkit-details-marker { display: none; }
+  .rules summary::after {
+    content: "＋";
+    float: right;
+    color: #a89c89;
+    font-weight: 600;
+  }
+  .rules[open] summary::after { content: "−"; }
+
+  .rules ul {
+    margin: 9px 0 0;
+    padding-left: 1.25em;
+  }
+  .rules li + li { margin-top: 5px; }
+  .rules strong { color: #4e493e; }
+
+  footer {
+    margin-top: 17px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(231, 220, 203, .7);
+    color: #9b917f;
+    font-size: 9.5px;
+    line-height: 1.7;
+    text-align: center;
+  }
+  footer a {
+    color: #867a66;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ---------- toast ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    z-index: 50;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: #2a3330;
+    color: #fffdf7;
+    box-shadow: 0 14px 34px rgba(20, 26, 24, .3);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, 14px);
+    transition: opacity .22s ease, transform .22s ease;
+    pointer-events: none;
+  }
+  .toast.is-show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .pop {
+    animation: scorePop .42s cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  @keyframes scorePop {
+    0% { transform: scale(.82); }
+    58% { transform: scale(1.13); }
+    100% { transform: scale(1); }
+  }
+
+  @media (max-width: 380px) {
+    .app { padding-left: 11px; padding-right: 11px; }
+    .lead { font-size: 11.5px; }
+    .stat { padding: 0 9px; }
+    .legend { gap: 6px 10px; font-size: 10px; }
+    .btn { font-size: 12px; }
+  }
+
+  @media (max-height: 660px) and (orientation: portrait) {
+    .app { padding-top: 10px; }
+    .lead { display: none; }
+    h1 { margin-top: 6px; font-size: 27px; }
+    h1 small { font-size: .4em; }
+    .scoreboard { margin-top: 9px; padding: 8px 2px; }
+    .map-card { margin-top: 9px; }
+    .legend { margin-top: 7px; }
+    .hint { min-height: 0; margin-top: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hero">
+    <div class="eyebrow">
+      <span class="badge">AHC006</span>
+      <span>Food Delivery / 非公式ミニ版</span>
+    </div>
+    <h1>Food Delivery <small>40 → 8</small></h1>
+    <p class="lead">お店で受け取って、配達先へ。タップでルートを組み立て、8件の注文をできるだけ短い距離で届けよう。</p>
+  </header>
+
+  <section class="scoreboard" aria-label="現在の状況">
+    <div class="stat">
+      <span class="stat-label">選んだ注文</span>
+      <div class="stat-value"><span id="selectedValue">0</span><span class="unit">/ 8</span></div>
+      <span class="stat-sub" id="selectSub">あと8件</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">移動距離 T</span>
+      <div class="stat-value" id="distanceValue">0</div>
+      <span class="stat-sub">マンハッタン</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">スコア</span>
+      <div class="stat-value is-muted" id="scoreValue">—</div>
+      <span class="stat-sub" id="bestValue">8件で確定</span>
+    </div>
+  </section>
+
+  <section class="map-card" id="mapCard">
+    <svg id="map" viewBox="-26 -26 852 852" role="img" aria-label="配達マップ。オレンジの四角がお店、青緑の丸が配達先、中央の黒い印がオフィスです。">
+      <rect x="-26" y="-26" width="852" height="852" fill="#fffcf5"/>
+      <g id="grid" aria-hidden="true"></g>
+      <g id="links" aria-hidden="true"></g>
+      <g id="routeGroup" aria-hidden="true">
+        <path id="routeHalo" class="route-halo"/>
+        <path id="routeLine" class="route-line"/>
+      </g>
+      <g id="office" aria-hidden="true">
+        <circle cx="400" cy="400" r="36" class="office-ring"/>
+        <circle cx="400" cy="400" r="23" fill="#26322f" stroke="#fffcf5" stroke-width="3"/>
+        <path class="office-house" d="M391 401 L400 391 L409 401 L409 411 L402 411 L402 404 L398 404 L398 411 L391 411 Z"/>
+      </g>
+      <g id="markers"></g>
+      <g id="ripples" aria-hidden="true"></g>
+    </svg>
+  </section>
+
+  <div class="result" id="result" role="status" hidden>
+    <div class="result-main">
+      <span class="result-kicker" id="resultKicker">配達完了</span>
+      <div class="result-score"><strong id="resultScore">0</strong><span>SCORE</span></div>
+      <span class="result-best" id="resultBest">BEST —</span>
+    </div>
+    <button type="button" class="result-btn" id="againBtn">もう一度</button>
+  </div>
+
+  <div class="legend" aria-label="凡例">
+    <span><i class="key shop" aria-hidden="true"></i>お店（受け取り）</span>
+    <span><i class="key drop" aria-hidden="true"></i>配達先</span>
+    <span><i class="key dash" aria-hidden="true"></i>同じ注文</span>
+    <span><i class="key num" aria-hidden="true">3</i>番号タップで取り消し</span>
+    <span><i class="key office" aria-hidden="true"></i>オフィス（発着）</span>
+  </div>
+
+  <p class="hint">
+    <span id="hintMain">オレンジのお店をタップして、配達する注文を選ぼう。</span>
+    <small id="hintSub">8件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
+  </p>
+
+  <div class="controls">
+    <button type="button" class="btn" id="undoBtn" aria-label="一手戻す">
+      <span class="glyph" aria-hidden="true">↶</span>戻す
+    </button>
+    <button type="button" class="btn" id="redoBtn" aria-label="一手進む">
+      <span class="glyph" aria-hidden="true">↷</span>進む
+    </button>
+    <button type="button" class="btn reset" id="resetBtn" aria-label="ルートをリセット">
+      <span class="glyph" aria-hidden="true">⟲</span>リセット
+    </button>
+  </div>
+
+  <details class="rules">
+    <summary>あそびかた / 採点について</summary>
+    <ul>
+      <li>40件の注文から<strong>好きな8件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
+      <li>オレンジの四角がお店（受け取り）、青緑の丸が配達先。点線でつながった2点が同じ注文です。</li>
+      <li>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</li>
+      <li>番号がついた地点をタップすると、その注文をルートから外して選び直せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
+      <li>PCでは、お店や配達先にカーソルを合わせると、同じ注文の2点と点線がハイライトされます。</li>
+      <li>移動時間は<strong>マンハッタン距離</strong>（|xの差| + |yの差|）。オフィスを出て、最後にオフィスへ戻るまでの合計が T です。</li>
+      <li>スコアは <strong>round(10⁸ / (1000 + T))</strong>。T が短いほど高得点になります。</li>
+    </ul>
+  </details>
+
+  <footer>
+    元問題: <a href="https://atcoder.jp/contests/ahc006/tasks/ahc006_a" target="_blank" rel="noopener">AtCoder Heuristic Contest 006 «Food Delivery»</a><br>
+    非公式の学習用ミニ版です。注文データは問題の入力例1から40件を抜粋して使用しています。
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const MAX_ORDERS = 8;
+  const OFFICE = { x: 400, y: 400 };
+
+  // 入力例1から、端点が重ならない40件を抜粋した固定データ
+  const RAW_ORDERS = [
+    [1, 406, 19, 347, 786],
+    [2, 4, 689, 659, 189],
+    [3, 96, 89, 424, 397],
+    [4, 523, 617, 212, 413],
+    [5, 453, 664, 592, 230],
+    [6, 582, 457, 46, 186],
+    [7, 32, 80, 671, 402],
+    [8, 298, 742, 653, 538],
+    [9, 681, 91, 152, 276],
+    [10, 730, 442, 375, 423],
+    [11, 772, 789, 347, 232],
+    [15, 9, 518, 747, 560],
+    [19, 618, 75, 452, 281],
+    [24, 355, 159, 724, 244],
+    [27, 632, 138, 739, 313],
+    [28, 531, 476, 39, 744],
+    [29, 302, 262, 790, 345],
+    [30, 550, 77, 402, 558],
+    [32, 673, 310, 111, 393],
+    [33, 563, 395, 128, 47],
+    [34, 92, 728, 594, 613],
+    [37, 288, 175, 785, 34],
+    [39, 787, 446, 212, 522],
+    [54, 463, 581, 756, 740],
+    [56, 386, 724, 113, 655],
+    [62, 479, 151, 369, 346],
+    [72, 397, 261, 289, 480],
+    [74, 294, 38, 297, 423],
+    [78, 617, 498, 309, 551],
+    [85, 39, 645, 224, 686],
+    [90, 557, 157, 10, 786],
+    [93, 682, 632, 156, 515],
+    [94, 428, 103, 243, 117],
+    [95, 185, 746, 670, 474],
+    [96, 372, 493, 2, 39],
+    [100, 38, 443, 21, 333],
+    [102, 114, 149, 494, 363],
+    [104, 344, 85, 713, 145],
+    [109, 698, 774, 204, 210],
+    [132, 543, 683, 655, 703]
+  ];
+
+  const ORDERS = RAW_ORDERS.map(([id, ax, ay, cx, cy]) => ({
+    id,
+    p: { x: ax, y: ay },
+    d: { x: cx, y: cy }
+  }));
+  const ORDER_BY_ID = new Map(ORDERS.map(o => [o.id, o]));
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('map');
+  const gridLayer = document.getElementById('grid');
+  const linkLayer = document.getElementById('links');
+  const routeGroup = document.getElementById('routeGroup');
+  const routeHalo = document.getElementById('routeHalo');
+  const routeLine = document.getElementById('routeLine');
+  const markerLayer = document.getElementById('markers');
+  const rippleLayer = document.getElementById('ripples');
+  const mapCard = document.getElementById('mapCard');
+
+  const selectedValue = document.getElementById('selectedValue');
+  const selectSub = document.getElementById('selectSub');
+  const distanceValue = document.getElementById('distanceValue');
+  const scoreValue = document.getElementById('scoreValue');
+  const bestValue = document.getElementById('bestValue');
+  const hintMain = document.getElementById('hintMain');
+  const hintSub = document.getElementById('hintSub');
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const result = document.getElementById('result');
+  const resultKicker = document.getElementById('resultKicker');
+  const resultScore = document.getElementById('resultScore');
+  const resultBest = document.getElementById('resultBest');
+  const againBtn = document.getElementById('againBtn');
+  const toastEl = document.getElementById('toast');
+
+  const nf = new Intl.NumberFormat('ja-JP');
+  const fmt = n => nf.format(n);
+
+  /* ---------- SVG helpers ---------- */
+
+  function svgEl(name, attrs) {
+    const node = document.createElementNS(NS, name);
+    if (attrs) {
+      for (const key in attrs) node.setAttribute(key, attrs[key]);
+    }
+    return node;
+  }
+
+  // 薄い方眼
+  for (let v = 0; v <= 800; v += 100) {
+    const major = v % 200 === 0;
+    gridLayer.appendChild(svgEl('line', {
+      x1: v, y1: 0, x2: v, y2: 800,
+      class: 'grid-line' + (major ? ' major' : '')
+    }));
+    gridLayer.appendChild(svgEl('line', {
+      x1: 0, y1: v, x2: 800, y2: v,
+      class: 'grid-line' + (major ? ' major' : '')
+    }));
+  }
+
+  function createMarker(kind, orderId) {
+    const g = svgEl('g', {
+      class: 'marker ' + kind,
+      'data-order': String(orderId),
+      'data-kind': kind
+    });
+    const halo = svgEl('circle', { class: 'halo', r: 23 });
+    let shape;
+    if (kind === 'pickup') {
+      shape = svgEl('rect', {
+        class: 'shop-shape', x: -12, y: -12, width: 24, height: 24, rx: 7
+      });
+    } else {
+      shape = svgEl('circle', { class: 'drop-shape', r: 12 });
+    }
+    const num = svgEl('text', { class: 'marker-num', y: 1 });
+    g.append(halo, shape, num);
+    markerLayer.appendChild(g);
+    return { g, shape, halo, num };
+  }
+
+  const markerViews = new Map();
+  for (const order of ORDERS) {
+    const link = svgEl('line', {
+      x1: order.p.x, y1: order.p.y,
+      x2: order.d.x, y2: order.d.y,
+      class: 'pair-link',
+      'data-order': String(order.id)
+    });
+    linkLayer.appendChild(link);
+    markerViews.set(order.id, {
+      link,
+      pickup: createMarker('pickup', order.id),
+      drop: createMarker('drop', order.id)
+    });
+  }
+
+  function paintMarker(view, point, state, number) {
+    view.g.setAttribute('transform', 'translate(' + point.x + ' ' + point.y + ')');
+    view.g.classList.toggle('is-dim', state === 'dim');
+    view.g.classList.toggle('is-open', state === 'open');
+    view.g.classList.toggle('is-target', state === 'target');
+    view.g.classList.toggle('is-visited', state === 'visited');
+
+    const visited = number != null;
+    if (view.g.classList.contains('pickup')) {
+      const half = visited ? 17 : 12;
+      view.shape.setAttribute('x', -half);
+      view.shape.setAttribute('y', -half);
+      view.shape.setAttribute('width', half * 2);
+      view.shape.setAttribute('height', half * 2);
+      view.shape.setAttribute('rx', visited ? 9 : 7);
+    } else {
+      view.shape.setAttribute('r', visited ? 18 : (state === 'target' ? 13 : 12));
+    }
+    view.halo.setAttribute('r', visited ? 26 : 23);
+    view.num.textContent = visited ? String(number) : '';
+  }
+
+  /* ---------- state ---------- */
+
+  let route = [];              // [{ id, kind: 'pickup' | 'drop' }]
+  let history = [[]];
+  let cursor = 0;
+  let wasComplete = false;
+  let best = 0;
+  let hoveredOrderId = null;
+
+  const BEST_KEY = 'ahc006-mini-best-v1';
+  try {
+    const stored = Number(window.localStorage.getItem(BEST_KEY));
+    if (Number.isFinite(stored) && stored > 0) best = stored;
+  } catch (err) { /* localStorageが使えなくても動作する */ }
+
+  function saveBest() {
+    try { window.localStorage.setItem(BEST_KEY, String(best)); } catch (err) { /* noop */ }
+  }
+
+  function stopPoint(stop) {
+    const order = ORDER_BY_ID.get(stop.id);
+    return stop.kind === 'pickup' ? order.p : order.d;
+  }
+
+  function totalDistance() {
+    let prev = OFFICE;
+    let sum = 0;
+    for (const stop of route) {
+      const cur = stopPoint(stop);
+      sum += Math.abs(prev.x - cur.x) + Math.abs(prev.y - cur.y);
+      prev = cur;
+    }
+    sum += Math.abs(prev.x - OFFICE.x) + Math.abs(prev.y - OFFICE.y);
+    return sum;
+  }
+
+  function scoreFor(t) {
+    return Math.round(1e8 / (1000 + t));
+  }
+
+  /* ---------- history ---------- */
+
+  function setRoute(next) {
+    history = history.slice(0, cursor + 1);
+    history.push(next.map(s => ({ ...s })));
+    cursor = history.length - 1;
+    route = next.map(s => ({ ...s }));
+    render();
+  }
+
+  function undo() {
+    if (cursor <= 0) return;
+    cursor -= 1;
+    route = history[cursor].map(s => ({ ...s }));
+    render();
+  }
+
+  function redo() {
+    if (cursor >= history.length - 1) return;
+    cursor += 1;
+    route = history[cursor].map(s => ({ ...s }));
+    render();
+  }
+
+  /* ---------- rendering ---------- */
+
+  function render() {
+    const selectedIds = new Set(route.map(s => s.id));
+    const selectedCount = selectedIds.size;
+    const canAddOrder = selectedCount < MAX_ORDERS;
+    mapCard.classList.toggle('is-full', selectedCount >= MAX_ORDERS);
+
+    let pickedCount = 0;
+    let deliveredCount = 0;
+
+    for (const order of ORDERS) {
+      const view = markerViews.get(order.id);
+      const pickupIndex = route.findIndex(s => s.id === order.id && s.kind === 'pickup');
+      const dropIndex = route.findIndex(s => s.id === order.id && s.kind === 'drop');
+      const picked = pickupIndex >= 0;
+      const delivered = dropIndex >= 0;
+
+      if (picked) pickedCount += 1;
+      if (delivered) deliveredCount += 1;
+
+      const pickupState = picked ? 'visited' : (canAddOrder ? 'open' : 'dim');
+      paintMarker(view.pickup, order.p, pickupState, picked ? pickupIndex + 1 : null);
+
+      const dropState = delivered ? 'visited' : (picked ? 'target' : 'dim');
+      paintMarker(view.drop, order.d, dropState, delivered ? dropIndex + 1 : null);
+
+      view.link.setAttribute(
+        'class',
+        'pair-link' +
+          (delivered ? ' is-done' : picked ? ' is-picked' : '') +
+          (hoveredOrderId === order.id ? ' is-hovered' : '')
+      );
+    }
+
+    // オフィス → 各停車地 → オフィス
+    if (route.length > 0) {
+      const points = [OFFICE, ...route.map(stopPoint), OFFICE];
+      const d = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x + ' ' + p.y).join(' ');
+      routeHalo.setAttribute('d', d);
+      routeLine.setAttribute('d', d);
+      routeGroup.style.display = '';
+    } else {
+      routeGroup.style.display = 'none';
+    }
+
+    const t = totalDistance();
+    const complete = deliveredCount === MAX_ORDERS;
+    const score = complete ? scoreFor(t) : 0;
+    const prevBest = best;
+
+    if (complete && score > best) {
+      best = score;
+      saveBest();
+    }
+
+    selectedValue.textContent = String(selectedCount);
+    distanceValue.textContent = fmt(t);
+    selectSub.textContent = selectedCount < MAX_ORDERS
+      ? 'あと' + (MAX_ORDERS - selectedCount) + '件'
+      : (complete ? '配達完了' : '配達中');
+
+    if (complete) {
+      scoreValue.textContent = fmt(score);
+      scoreValue.classList.remove('is-muted');
+    } else {
+      scoreValue.textContent = '—';
+      scoreValue.classList.add('is-muted');
+    }
+
+    bestValue.textContent = best > 0 ? 'BEST ' + fmt(best) : '8件で確定';
+
+    if (complete) {
+      result.hidden = false;
+      resultScore.textContent = fmt(score);
+      resultBest.textContent = best > 0 ? 'BEST ' + fmt(best) : 'BEST —';
+      if (!wasComplete) {
+        toastEl.classList.remove('is-show');
+        resultKicker.textContent = score > prevBest ? 'NEW BEST' : '配達完了';
+        scoreValue.classList.remove('pop');
+        void scoreValue.offsetWidth;
+        scoreValue.classList.add('pop');
+      }
+      mapCard.classList.add('is-complete');
+    } else {
+      result.hidden = true;
+      mapCard.classList.remove('is-complete');
+    }
+
+    updateHint(selectedCount, pickedCount, deliveredCount, complete, t);
+    updateButtons();
+    wasComplete = complete;
+  }
+
+  function updateHint(selectedCount, pickedCount, deliveredCount, complete, t) {
+    const remainingOrders = MAX_ORDERS - selectedCount;
+    const waitingDrops = pickedCount - deliveredCount;
+
+    if (complete) {
+      hintMain.textContent = '配達完了！ スコアは ' + fmt(scoreFor(t)) + ' 点です。';
+      hintSub.textContent = '総移動距離 T = ' + fmt(t) + '。もう一度挑戦するときは「リセット」。';
+      return;
+    }
+
+    if (route.length === 0) {
+      hintMain.textContent = 'オレンジのお店をタップして、配達する注文を選ぼう。';
+      hintSub.textContent = '8件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。';
+      return;
+    }
+
+    if (waitingDrops > 0) {
+      hintMain.textContent = '青緑の配達先をタップして届けよう（残り' + (MAX_ORDERS - deliveredCount) + '件）。';
+      hintSub.textContent = remainingOrders > 0
+        ? 'まだお店を追加できます。まとめ受け取りで距離を縮めよう。'
+        : '8件選択中。配達先をすべて回れば完成です。';
+      return;
+    }
+
+    hintMain.textContent = '次のオレンジのお店をタップして、注文を追加しよう。';
+    hintSub.textContent = remainingOrders > 0
+      ? 'あと' + remainingOrders + '件選べます。近い注文を探してみよう。'
+      : '8件選択済み。配達先をタップして届けよう。';
+  }
+
+  function updateButtons() {
+    undoBtn.disabled = cursor === 0;
+    redoBtn.disabled = cursor >= history.length - 1;
+    resetBtn.disabled = route.length === 0;
+  }
+
+  /* ---------- actions ---------- */
+
+  function addPickup(id) {
+    const selectedCount = new Set(route.map(s => s.id)).size;
+    if (selectedCount >= MAX_ORDERS) {
+      toast('注文は8件まで。番号がついた地点をタップすると外せます');
+      return;
+    }
+    setRoute([...route, { id, kind: 'pickup' }]);
+    haptic(8);
+  }
+
+  function addDrop(id) {
+    const picked = route.some(s => s.id === id && s.kind === 'pickup');
+    if (!picked) {
+      toast('先にオレンジのお店をタップして受け取ろう');
+      haptic(14);
+      return;
+    }
+    setRoute([...route, { id, kind: 'drop' }]);
+    haptic(8);
+  }
+
+  function removeOrder(id) {
+    const next = route.filter(s => s.id !== id);
+    if (next.length === route.length) return;
+    setRoute(next);
+    toast('注文をルートから外しました');
+    haptic(12);
+  }
+
+  function handleOrderTap(orderId, kind) {
+    const picked = route.some(s => s.id === orderId && s.kind === 'pickup');
+    const delivered = route.some(s => s.id === orderId && s.kind === 'drop');
+
+    if (kind === 'pickup') {
+      if (picked) {
+        removeOrder(orderId);
+      } else {
+        addPickup(orderId);
+      }
+      return;
+    }
+
+    if (delivered) {
+      removeOrder(orderId);
+    } else if (picked) {
+      addDrop(orderId);
+    } else {
+      toast('先にオレンジのお店をタップして受け取ろう');
+      haptic(14);
+    }
+  }
+
+  /* ---------- map tapping ---------- */
+
+  function clientToSvg(clientX, clientY) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    return pt.matrixTransform(ctm.inverse());
+  }
+
+  function addRipple(point) {
+    const c = svgEl('circle', { cx: point.x, cy: point.y, r: 10, class: 'ripple' });
+    rippleLayer.appendChild(c);
+    window.setTimeout(() => c.remove(), 560);
+  }
+
+  function nearestOrderPoint(clientX, clientY, thresholdPx) {
+    const point = clientToSvg(clientX, clientY);
+    if (!point) return null;
+
+    const rect = svg.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal;
+    const pxPerUnit = rect.width / vb.width;
+    const threshold = thresholdPx / pxPerUnit;
+
+    let nearest = null;
+    let nearestDist = Infinity;
+
+    for (const order of ORDERS) {
+      const candidates = [
+        { kind: 'pickup', point: order.p },
+        { kind: 'drop', point: order.d }
+      ];
+      for (const cand of candidates) {
+        const dx = cand.point.x - point.x;
+        const dy = cand.point.y - point.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearest = { order, kind: cand.kind };
+        }
+      }
+    }
+
+    if (!nearest || nearestDist > threshold) return null;
+    return { ...nearest, point };
+  }
+
+  function setHoveredOrder(id) {
+    if (hoveredOrderId === id) return;
+
+    if (hoveredOrderId != null) {
+      const prev = markerViews.get(hoveredOrderId);
+      if (prev) {
+        prev.link.classList.remove('is-hovered');
+        prev.pickup.g.classList.remove('is-hovered');
+        prev.drop.g.classList.remove('is-hovered');
+      }
+    }
+
+    hoveredOrderId = id;
+
+    if (id != null) {
+      const view = markerViews.get(id);
+      if (view) {
+        view.link.classList.add('is-hovered');
+        view.pickup.g.classList.add('is-hovered');
+        view.drop.g.classList.add('is-hovered');
+      }
+    }
+
+    mapCard.classList.toggle('is-hovering', id != null);
+  }
+
+  function clearHover() {
+    setHoveredOrder(null);
+  }
+
+  svg.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch') return;
+    const hit = nearestOrderPoint(event.clientX, event.clientY, 20);
+    setHoveredOrder(hit ? hit.order.id : null);
+  });
+
+  svg.addEventListener('pointerleave', clearHover);
+  svg.addEventListener('pointercancel', clearHover);
+  svg.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'touch') clearHover();
+  });
+  window.addEventListener('scroll', clearHover, { passive: true });
+  window.addEventListener('blur', clearHover);
+
+  svg.addEventListener('click', (event) => {
+    const hit = nearestOrderPoint(event.clientX, event.clientY, 30);
+    if (!hit) return;
+
+    addRipple(hit.point);
+    handleOrderTap(hit.order.id, hit.kind);
+  });
+
+  /* ---------- toast / haptic ---------- */
+
+  let toastTimer = 0;
+  function toast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add('is-show');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toastEl.classList.remove('is-show');
+    }, 2150);
+  }
+
+  let lastHaptic = 0;
+  function haptic(duration) {
+    const now = Date.now();
+    if (now - lastHaptic < 50) return;
+    lastHaptic = now;
+    if (typeof navigator.vibrate === 'function') {
+      try { navigator.vibrate(duration); } catch (err) { /* noop */ }
+    }
+  }
+
+  /* ---------- buttons ---------- */
+
+  undoBtn.addEventListener('click', () => {
+    if (cursor > 0) {
+      undo();
+      haptic(6);
+    }
+  });
+
+  redoBtn.addEventListener('click', () => {
+    if (cursor < history.length - 1) {
+      redo();
+      haptic(6);
+    }
+  });
+
+  function resetRoute() {
+    if (route.length === 0) return;
+    setRoute([]);
+    haptic(10);
+  }
+
+  resetBtn.addEventListener('click', () => {
+    if (route.length === 0) return;
+    resetRoute();
+    toast('ルートをリセットしました（「戻す」で元に戻せます）');
+  });
+
+  againBtn.addEventListener('click', resetRoute);
+
+  /* ---------- start ---------- */
+
+  render();
+})();
+</script>
+</body>
+</html>
