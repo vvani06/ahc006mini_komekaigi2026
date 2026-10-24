@@ -505,9 +505,6 @@
 
   /* ---------- result ---------- */
   .result {
-    display: flex;
-    align-items: center;
-    gap: 12px;
     margin-top: 10px;
     padding: 10px 11px 10px 14px;
     border: 1px solid rgba(31, 127, 114, .28);
@@ -522,14 +519,13 @@
     to   { transform: translateY(0); opacity: 1; }
   }
 
-  .result-main { min-width: 0; flex: 1; }
-
-  .result-actions {
-    flex: none;
+  .result-top {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
   }
+
+  .result-main { min-width: 0; flex: 1; }
 
   .result-kicker {
     display: block;
@@ -592,13 +588,43 @@
   }
   .result-btn:active { transform: scale(.96); background: #101917; }
 
-  .result-btn.share { background: #111; }
-  .result-btn.again {
+  .result-btn.share {
+    background: #111;
+    text-decoration: none;
+  }
+  .result-btn.again,
+  .result-btn.save {
     border: 1px solid var(--line);
     background: transparent;
     color: var(--ink);
   }
-  .result-btn.again:active { background: #f1eadf; }
+  .result-btn.again:active,
+  .result-btn.save:active { background: #f1eadf; }
+
+  .share-flow {
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(231, 220, 203, .9);
+  }
+
+  .share-guide {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .share-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .share-row .result-btn {
+    width: 100%;
+    min-height: 42px;
+  }
 
   .share-x {
     display: inline-flex;
@@ -830,8 +856,6 @@
     .stat { padding: 0 9px; }
     .legend { gap: 6px 10px; font-size: 10px; }
     .btn { font-size: 12px; }
-    .result { flex-wrap: wrap; }
-    .result-actions { width: 100%; justify-content: flex-end; }
   }
 
   @media (max-height: 660px) and (orientation: portrait) {
@@ -914,16 +938,22 @@
   </section>
 
   <div class="result" id="result" role="status" hidden>
-    <div class="result-main">
-      <span class="result-kicker" id="resultKicker">配達完了</span>
-      <div class="result-score"><strong id="resultScore">0</strong><span>SCORE</span></div>
-      <span class="result-best" id="resultBest">BEST —</span>
-    </div>
-    <div class="result-actions">
-      <button type="button" class="result-btn share" id="shareBtn" aria-label="Xで結果を共有" title="対応端末では経路画像付きで共有します">
-        <span class="share-x" aria-hidden="true">X</span>で共有
-      </button>
+    <div class="result-top">
+      <div class="result-main">
+        <span class="result-kicker" id="resultKicker">配達完了</span>
+        <div class="result-score"><strong id="resultScore">0</strong><span>SCORE</span></div>
+        <span class="result-best" id="resultBest">BEST —</span>
+      </div>
       <button type="button" class="result-btn again" id="againBtn">もう一度</button>
+    </div>
+    <div class="share-flow">
+      <p class="share-guide">① 画像を保存 → ② Xでポストして画像を添付</p>
+      <div class="share-row">
+        <button type="button" class="result-btn save" id="saveImageBtn">画像を保存</button>
+        <a class="result-btn share" id="postLink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Xでポスト">
+          <span class="share-x" aria-hidden="true">X</span>でポスト
+        </a>
+      </div>
     </div>
   </div>
 
@@ -962,6 +992,7 @@
       <li>PCでは、お店や配達先にカーソルを合わせると、同じ注文の2点と点線がハイライトされます。</li>
       <li>移動時間は<strong>マンハッタン距離</strong>（|xの差| + |yの差|）。オフィスを出て、最後にオフィスへ戻るまでの合計が T です。</li>
       <li>スコアは <strong>round(10⁸ / (1000 + T))</strong>。T が短いほど高得点になります。</li>
+      <li>クリア後は「画像を保存」で経路画像をダウンロードし、「Xでポスト」からXの投稿画面を開けます。</li>
     </ul>
   </details>
 
@@ -1050,7 +1081,8 @@
   const resultScore = document.getElementById('resultScore');
   const resultBest = document.getElementById('resultBest');
   const againBtn = document.getElementById('againBtn');
-  const shareBtn = document.getElementById('shareBtn');
+  const saveImageBtn = document.getElementById('saveImageBtn');
+  const postLink = document.getElementById('postLink');
   const toastEl = document.getElementById('toast');
 
   const nf = new Intl.NumberFormat('ja-JP');
@@ -1281,6 +1313,7 @@
       result.hidden = false;
       resultScore.textContent = fmt(score);
       resultBest.textContent = best > 0 ? 'BEST ' + fmt(best) : 'BEST —';
+      postLink.href = xPostUrl(score);
       const isNewBest = score > prevBest;
       resultKicker.textContent = isNewBest ? 'NEW BEST' : '配達完了';
       if (!wasComplete) {
@@ -1768,10 +1801,13 @@
     ctx.font = String(weight) + ' ' + size + 'px ' + SHARE_FONT;
   }
 
-  function tweetText() {
-    const score = scoreFor(totalDistance());
+  function tweetTextForScore(score) {
     return 'AHC006 Food Delivery KomeKaigi2026ミニ版Edition でスコア ' + fmt(score) +
       ' を達成しました！ #AHC006 #KomeKaigi2026';
+  }
+
+  function xPostUrl(score) {
+    return 'https://x.com/intent/post?text=' + encodeURIComponent(tweetTextForScore(score));
   }
 
   function buildShareCanvas() {
@@ -2090,18 +2126,20 @@
     return canvas;
   }
 
-  function canvasToFile(canvas) {
-    const dataUrl = canvas.toDataURL('image/png');
-    const base64 = dataUrl.split(',')[1];
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-    return new File([bytes], 'ahc006-komekaigi2026.png', { type: 'image/png' });
-  }
+  function downloadShareImage() {
+    if (route.filter(s => s.kind === 'drop').length !== MAX_ORDERS) return;
 
-  function fallbackShare(canvas, text) {
-    const intentUrl = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-    window.open(intentUrl, '_blank', 'noopener');
+    let canvas = null;
+    try {
+      canvas = buildShareCanvas();
+    } catch (err) {
+      canvas = null;
+    }
+
+    if (!canvas) {
+      toast('経路画像を作れませんでした');
+      return;
+    }
 
     const link = document.createElement('a');
     link.download = 'ahc006-komekaigi2026.png';
@@ -2111,54 +2149,6 @@
     link.remove();
 
     toast('経路画像を保存しました。Xの投稿画面に添付してください');
-  }
-
-  function shareResult() {
-    if (route.filter(s => s.kind === 'drop').length !== MAX_ORDERS) return;
-
-    const text = tweetText();
-    let canvas = null;
-    try {
-      canvas = buildShareCanvas();
-    } catch (err) {
-      canvas = null;
-    }
-
-    if (!canvas) {
-      window.open('https://x.com/intent/post?text=' + encodeURIComponent(text), '_blank', 'noopener');
-      toast('共有画像を作れませんでした。Xでテキストを投稿できます');
-      return;
-    }
-
-    let file = null;
-    try {
-      file = canvasToFile(canvas);
-    } catch (err) {
-      file = null;
-    }
-
-    if (file && navigator.share && navigator.canShare) {
-      let canShareFile = false;
-      try {
-        canShareFile = navigator.canShare({ files: [file] });
-      } catch (err) {
-        canShareFile = false;
-      }
-
-      if (canShareFile) {
-        try {
-          navigator.share({ text, files: [file] }).catch(err => {
-            if (err && err.name === 'AbortError') return;
-            fallbackShare(canvas, text);
-          });
-        } catch (err) {
-          fallbackShare(canvas, text);
-        }
-        return;
-      }
-    }
-
-    fallbackShare(canvas, text);
   }
 
   /* ---------- buttons ---------- */
@@ -2190,7 +2180,7 @@
   });
 
   againBtn.addEventListener('click', resetRoute);
-  shareBtn.addEventListener('click', shareResult);
+  saveImageBtn.addEventListener('click', downloadShareImage);
 
   /* ---------- start ---------- */
 
