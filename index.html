@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f2ecdf">
-<title>Food Delivery — 40件から8件の配達ゲーム</title>
+<title>Food Delivery — 26件から5件の配達ゲーム</title>
 <style>
   :root {
     --bg: #f2ecdf;
@@ -265,12 +265,12 @@
   .shop-shape { fill: var(--accent); }
   .drop-shape { fill: var(--teal); }
 
-  .marker.is-dim { opacity: .27; }
+  .marker.is-dim { opacity: .5; }
   .marker.is-open { opacity: 1; }
   .marker.is-target { opacity: 1; }
   .marker.is-visited { opacity: 1; }
 
-  .map-card.is-full .marker.is-dim { opacity: .14; }
+  .map-card.is-full .marker.is-dim { opacity: .16; }
   .map-card.is-full .pair-link { opacity: .12; }
   .map-card.is-full .pair-link.is-picked { opacity: .38; }
   .map-card.is-full .pair-link.is-hovered { opacity: .95; }
@@ -280,9 +280,9 @@
   }
 
   .marker-num {
-    display: none;
+    display: block;
     fill: #fff;
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 900;
     letter-spacing: -.03em;
     text-anchor: middle;
@@ -290,7 +290,7 @@
     pointer-events: none;
     user-select: none;
   }
-  .marker.is-visited .marker-num { display: block; }
+  .marker.is-visited .marker-num { font-size: 24px; }
 
   .halo {
     fill: none;
@@ -357,6 +357,150 @@
   @keyframes rippleOut {
     0%   { transform: scale(.4); opacity: .75; }
     100% { transform: scale(3.4); opacity: 0; }
+  }
+
+  /* ---------- route order ---------- */
+  .route-panel {
+    margin-top: 10px;
+    padding: 9px 11px 10px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 253, 248, .9);
+    box-shadow: 0 10px 26px -24px rgba(58, 42, 22, .45);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+
+  .route-panel.is-invalid {
+    border-color: rgba(190, 64, 37, .55);
+    box-shadow: 0 0 0 3px rgba(190, 64, 37, .08);
+    animation: routeShake .34s ease;
+  }
+
+  @keyframes routeShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+  }
+
+  .route-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 1px 6px;
+  }
+
+  .route-title {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .1em;
+  }
+
+  .route-help {
+    color: #a39784;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    white-space: nowrap;
+  }
+
+  .route-track {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 18px;
+    row-gap: 7px;
+    min-height: 34px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stop-chip {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity .12s ease, box-shadow .12s ease, transform .12s ease;
+  }
+
+  .stop-chip::after {
+    content: "→";
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 4px);
+    color: #b6a992;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .route-track.is-dragging { cursor: grabbing; }
+
+  .stop-chip:last-child::after { display: none; }
+
+  .stop-chip.pickup {
+    border: 1px solid rgba(224, 91, 43, .3);
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+  }
+
+  .stop-chip.drop {
+    border: 1px solid rgba(31, 127, 114, .28);
+    background: var(--teal-soft);
+    color: #125c52;
+  }
+
+  .stop-chip:active { cursor: grabbing; }
+
+  .stop-chip.is-drag-placeholder {
+    opacity: .26;
+    border-style: dashed;
+    box-shadow: none;
+  }
+
+  .drag-ghost {
+    position: fixed;
+    z-index: 100;
+    margin: 0;
+    pointer-events: none;
+    opacity: .96;
+    box-shadow: 0 12px 24px rgba(38, 50, 47, .25);
+    transform: rotate(-2deg) scale(1.06);
+    cursor: grabbing;
+  }
+
+  .drag-ghost::after { display: none; }
+
+  body.is-reordering {
+    cursor: grabbing;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .route-empty {
+    margin: 5px 1px 1px;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.5;
   }
 
   /* ---------- result ---------- */
@@ -456,6 +600,12 @@
     white-space: nowrap;
   }
 
+  .legend-arrow {
+    color: #8f8371;
+    font-size: 11.5px;
+    font-weight: 800;
+  }
+
   .key {
     display: inline-block;
     flex: none;
@@ -471,11 +621,6 @@
     height: 11px;
     border-radius: 50%;
     background: var(--teal);
-  }
-  .key.dash {
-    width: 17px;
-    height: 0;
-    border-top: 1.5px dashed #b9a78e;
   }
   .key.num {
     width: 16px;
@@ -684,15 +829,15 @@
       <span class="badge">AHC006</span>
       <span>Food Delivery / 非公式ミニ版</span>
     </div>
-    <h1>Food Delivery <small>40 → 8</small></h1>
-    <p class="lead">お店で受け取って、配達先へ。タップでルートを組み立て、8件の注文をできるだけ短い距離で届けよう。</p>
+    <h1>Food Delivery <small>26 → 5</small></h1>
+    <p class="lead">お店 a で受け取って、配達先 a′ へ。タップと並べ替えで、5件の注文を短い距離で届けよう。</p>
   </header>
 
   <section class="scoreboard" aria-label="現在の状況">
     <div class="stat">
       <span class="stat-label">選んだ注文</span>
-      <div class="stat-value"><span id="selectedValue">0</span><span class="unit">/ 8</span></div>
-      <span class="stat-sub" id="selectSub">あと8件</span>
+      <div class="stat-value"><span id="selectedValue">0</span><span class="unit">/ 5</span></div>
+      <span class="stat-sub" id="selectSub">あと5件</span>
     </div>
     <div class="stat">
       <span class="stat-label">移動距離 T</span>
@@ -702,12 +847,12 @@
     <div class="stat">
       <span class="stat-label">スコア</span>
       <div class="stat-value is-muted" id="scoreValue">—</div>
-      <span class="stat-sub" id="bestValue">8件で確定</span>
+      <span class="stat-sub" id="bestValue">5件で確定</span>
     </div>
   </section>
 
   <section class="map-card" id="mapCard">
-    <svg id="map" viewBox="-26 -26 852 852" role="img" aria-label="配達マップ。オレンジの四角がお店、青緑の丸が配達先、中央の黒い印がオフィスです。">
+    <svg id="map" viewBox="-26 -26 852 852" role="img" aria-label="配達マップ。オレンジの四角がお店 a〜z、青緑の丸が配達先 a′〜z′、中央の黒い印がオフィスです。">
       <rect x="-26" y="-26" width="852" height="852" fill="#fffcf5"/>
       <g id="grid" aria-hidden="true"></g>
       <g id="links" aria-hidden="true"></g>
@@ -725,6 +870,15 @@
     </svg>
   </section>
 
+  <section class="route-panel" id="routePanel" aria-label="配達順">
+    <div class="route-head">
+      <span class="route-title">配達順</span>
+      <span class="route-help">ドラッグで並べ替え</span>
+    </div>
+    <ol class="route-track" id="routeTrack" aria-label="現在の配達順"></ol>
+    <p class="route-empty" id="routeEmpty">お店をタップすると、配達順がここに並びます。</p>
+  </section>
+
   <div class="result" id="result" role="status" hidden>
     <div class="result-main">
       <span class="result-kicker" id="resultKicker">配達完了</span>
@@ -735,16 +889,14 @@
   </div>
 
   <div class="legend" aria-label="凡例">
-    <span><i class="key shop" aria-hidden="true"></i>お店（受け取り）</span>
-    <span><i class="key drop" aria-hidden="true"></i>配達先</span>
-    <span><i class="key dash" aria-hidden="true"></i>同じ注文</span>
-    <span><i class="key num" aria-hidden="true">3</i>番号タップで取り消し</span>
+    <span><i class="key shop" aria-hidden="true"></i>お店 a <b class="legend-arrow" aria-hidden="true">→</b> <i class="key drop" aria-hidden="true"></i>配達先 a′</span>
     <span><i class="key office" aria-hidden="true"></i>オフィス（発着）</span>
+    <span><i class="key num" aria-hidden="true">a</i>地図の文字タップで取消</span>
   </div>
 
   <p class="hint">
     <span id="hintMain">オレンジのお店をタップして、配達する注文を選ぼう。</span>
-    <small id="hintSub">8件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
+    <small id="hintSub">5件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
   </p>
 
   <div class="controls">
@@ -762,10 +914,12 @@
   <details class="rules">
     <summary>あそびかた / 採点について</summary>
     <ul>
-      <li>40件の注文から<strong>好きな8件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
-      <li>オレンジの四角がお店（受け取り）、青緑の丸が配達先。点線でつながった2点が同じ注文です。</li>
+      <li>26件の注文（a〜z）から<strong>好きな5件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
+      <li>オレンジの四角がお店 <strong>a</strong>、青緑の丸が配達先 <strong>a′</strong>。同じ文字の2点が1つの注文です。</li>
       <li>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</li>
-      <li>番号がついた地点をタップすると、その注文をルートから外して選び直せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
+      <li><strong>「配達順」</strong>には、タップした地点が処理順に並びます。各チップをドラッグ＆ドロップすると順番を入れ替えられます。</li>
+      <li>配達先を対応するお店より前に動かすような<strong>不正な順番</strong>にした場合は、メッセージを出して元の順番に戻ります。</li>
+      <li>地図上の文字がついた地点をタップすると、その注文をルートから外して選び直せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
       <li>PCでは、お店や配達先にカーソルを合わせると、同じ注文の2点と点線がハイライトされます。</li>
       <li>移動時間は<strong>マンハッタン距離</strong>（|xの差| + |yの差|）。オフィスを出て、最後にオフィスへ戻るまでの合計が T です。</li>
       <li>スコアは <strong>round(10⁸ / (1000 + T))</strong>。T が短いほど高得点になります。</li>
@@ -774,7 +928,7 @@
 
   <footer>
     元問題: <a href="https://atcoder.jp/contests/ahc006/tasks/ahc006_a" target="_blank" rel="noopener">AtCoder Heuristic Contest 006 «Food Delivery»</a><br>
-    非公式の学習用ミニ版です。注文データは問題の入力例1から40件を抜粋して使用しています。
+    非公式の学習用ミニ版です。注文データは問題の入力例1から26件を抜粋し、a〜z を割り当てて使用しています。
   </footer>
 
 </div>
@@ -785,55 +939,44 @@
 (() => {
   'use strict';
 
-  const MAX_ORDERS = 8;
+  const MAX_ORDERS = 5;
+  const PRIME = '′';
   const OFFICE = { x: 400, y: 400 };
 
-  // 入力例1から、端点が重ならない40件を抜粋した固定データ
+  // 入力例1から、端点が重ならない26件を選び a〜z を割り当てた固定データ
   const RAW_ORDERS = [
-    [1, 406, 19, 347, 786],
-    [2, 4, 689, 659, 189],
-    [3, 96, 89, 424, 397],
-    [4, 523, 617, 212, 413],
-    [5, 453, 664, 592, 230],
-    [6, 582, 457, 46, 186],
-    [7, 32, 80, 671, 402],
-    [8, 298, 742, 653, 538],
-    [9, 681, 91, 152, 276],
-    [10, 730, 442, 375, 423],
-    [11, 772, 789, 347, 232],
-    [15, 9, 518, 747, 560],
-    [19, 618, 75, 452, 281],
-    [24, 355, 159, 724, 244],
-    [27, 632, 138, 739, 313],
-    [28, 531, 476, 39, 744],
-    [29, 302, 262, 790, 345],
-    [30, 550, 77, 402, 558],
-    [32, 673, 310, 111, 393],
-    [33, 563, 395, 128, 47],
-    [34, 92, 728, 594, 613],
-    [37, 288, 175, 785, 34],
-    [39, 787, 446, 212, 522],
-    [54, 463, 581, 756, 740],
-    [56, 386, 724, 113, 655],
-    [62, 479, 151, 369, 346],
-    [72, 397, 261, 289, 480],
-    [74, 294, 38, 297, 423],
-    [78, 617, 498, 309, 551],
-    [85, 39, 645, 224, 686],
-    [90, 557, 157, 10, 786],
-    [93, 682, 632, 156, 515],
-    [94, 428, 103, 243, 117],
-    [95, 185, 746, 670, 474],
-    [96, 372, 493, 2, 39],
-    [100, 38, 443, 21, 333],
-    [102, 114, 149, 494, 363],
-    [104, 344, 85, 713, 145],
-    [109, 698, 774, 204, 210],
-    [132, 543, 683, 655, 703]
+    ['a', 406, 19, 347, 786],
+    ['b', 4, 689, 659, 189],
+    ['c', 96, 89, 424, 397],
+    ['d', 523, 617, 212, 413],
+    ['e', 453, 664, 592, 230],
+    ['f', 582, 457, 46, 186],
+    ['g', 681, 91, 152, 276],
+    ['h', 772, 789, 347, 232],
+    ['i', 688, 445, 99, 358],
+    ['j', 9, 518, 747, 560],
+    ['k', 10, 388, 410, 304],
+    ['l', 550, 77, 402, 558],
+    ['m', 727, 244, 83, 733],
+    ['n', 288, 175, 785, 34],
+    ['o', 787, 446, 212, 522],
+    ['p', 367, 459, 661, 366],
+    ['q', 212, 1, 532, 391],
+    ['r', 749, 353, 164, 196],
+    ['s', 493, 787, 610, 634],
+    ['t', 299, 709, 646, 556],
+    ['u', 294, 38, 297, 423],
+    ['v', 557, 157, 10, 786],
+    ['w', 147, 774, 614, 739],
+    ['x', 310, 529, 292, 315],
+    ['y', 696, 671, 4, 2],
+    ['z', 151, 599, 215, 319]
   ];
 
   const ORDERS = RAW_ORDERS.map(([id, ax, ay, cx, cy]) => ({
     id,
+    pickupLabel: id,
+    dropLabel: id + PRIME,
     p: { x: ax, y: ay },
     d: { x: cx, y: cy }
   }));
@@ -849,6 +992,9 @@
   const markerLayer = document.getElementById('markers');
   const rippleLayer = document.getElementById('ripples');
   const mapCard = document.getElementById('mapCard');
+  const routePanel = document.getElementById('routePanel');
+  const routeTrack = document.getElementById('routeTrack');
+  const routeEmpty = document.getElementById('routeEmpty');
 
   const selectedValue = document.getElementById('selectedValue');
   const selectSub = document.getElementById('selectSub');
@@ -899,14 +1045,14 @@
       'data-order': String(orderId),
       'data-kind': kind
     });
-    const halo = svgEl('circle', { class: 'halo', r: 23 });
+    const halo = svgEl('circle', { class: 'halo', r: 32 });
     let shape;
     if (kind === 'pickup') {
       shape = svgEl('rect', {
-        class: 'shop-shape', x: -12, y: -12, width: 24, height: 24, rx: 7
+        class: 'shop-shape', x: -18, y: -18, width: 36, height: 36, rx: 9
       });
     } else {
-      shape = svgEl('circle', { class: 'drop-shape', r: 12 });
+      shape = svgEl('circle', { class: 'drop-shape', r: 18 });
     }
     const num = svgEl('text', { class: 'marker-num', y: 1 });
     g.append(halo, shape, num);
@@ -930,26 +1076,26 @@
     });
   }
 
-  function paintMarker(view, point, state, number) {
+  function paintMarker(view, point, state, label) {
     view.g.setAttribute('transform', 'translate(' + point.x + ' ' + point.y + ')');
     view.g.classList.toggle('is-dim', state === 'dim');
     view.g.classList.toggle('is-open', state === 'open');
     view.g.classList.toggle('is-target', state === 'target');
     view.g.classList.toggle('is-visited', state === 'visited');
 
-    const visited = number != null;
+    const visited = state === 'visited';
     if (view.g.classList.contains('pickup')) {
-      const half = visited ? 17 : 12;
+      const half = visited ? 23 : 18;
       view.shape.setAttribute('x', -half);
       view.shape.setAttribute('y', -half);
       view.shape.setAttribute('width', half * 2);
       view.shape.setAttribute('height', half * 2);
-      view.shape.setAttribute('rx', visited ? 9 : 7);
+      view.shape.setAttribute('rx', visited ? 12 : 9);
     } else {
-      view.shape.setAttribute('r', visited ? 18 : (state === 'target' ? 13 : 12));
+      view.shape.setAttribute('r', visited ? 24 : (state === 'target' ? 20 : 18));
     }
-    view.halo.setAttribute('r', visited ? 26 : 23);
-    view.num.textContent = visited ? String(number) : '';
+    view.halo.setAttribute('r', visited ? 36 : 32);
+    view.num.textContent = label;
   }
 
   /* ---------- state ---------- */
@@ -961,7 +1107,7 @@
   let best = 0;
   let hoveredOrderId = null;
 
-  const BEST_KEY = 'ahc006-mini-best-v1';
+  const BEST_KEY = 'ahc006-mini-best-v2';
   try {
     const stored = Number(window.localStorage.getItem(BEST_KEY));
     if (Number.isFinite(stored) && stored > 0) best = stored;
@@ -995,6 +1141,7 @@
   /* ---------- history ---------- */
 
   function setRoute(next) {
+    if (dragState) cleanupDrag();
     history = history.slice(0, cursor + 1);
     history.push(next.map(s => ({ ...s })));
     cursor = history.length - 1;
@@ -1004,6 +1151,7 @@
 
   function undo() {
     if (cursor <= 0) return;
+    if (dragState) cleanupDrag();
     cursor -= 1;
     route = history[cursor].map(s => ({ ...s }));
     render();
@@ -1011,6 +1159,7 @@
 
   function redo() {
     if (cursor >= history.length - 1) return;
+    if (dragState) cleanupDrag();
     cursor += 1;
     route = history[cursor].map(s => ({ ...s }));
     render();
@@ -1038,10 +1187,10 @@
       if (delivered) deliveredCount += 1;
 
       const pickupState = picked ? 'visited' : (canAddOrder ? 'open' : 'dim');
-      paintMarker(view.pickup, order.p, pickupState, picked ? pickupIndex + 1 : null);
+      paintMarker(view.pickup, order.p, pickupState, order.pickupLabel);
 
       const dropState = delivered ? 'visited' : (picked ? 'target' : 'dim');
-      paintMarker(view.drop, order.d, dropState, delivered ? dropIndex + 1 : null);
+      paintMarker(view.drop, order.d, dropState, order.dropLabel);
 
       view.link.setAttribute(
         'class',
@@ -1086,15 +1235,18 @@
       scoreValue.classList.add('is-muted');
     }
 
-    bestValue.textContent = best > 0 ? 'BEST ' + fmt(best) : '8件で確定';
+    bestValue.textContent = best > 0 ? 'BEST ' + fmt(best) : MAX_ORDERS + '件で確定';
 
     if (complete) {
       result.hidden = false;
       resultScore.textContent = fmt(score);
       resultBest.textContent = best > 0 ? 'BEST ' + fmt(best) : 'BEST —';
+      const isNewBest = score > prevBest;
+      resultKicker.textContent = isNewBest ? 'NEW BEST' : '配達完了';
       if (!wasComplete) {
         toastEl.classList.remove('is-show');
-        resultKicker.textContent = score > prevBest ? 'NEW BEST' : '配達完了';
+      }
+      if (!wasComplete || isNewBest) {
         scoreValue.classList.remove('pop');
         void scoreValue.offsetWidth;
         scoreValue.classList.add('pop');
@@ -1107,6 +1259,7 @@
 
     updateHint(selectedCount, pickedCount, deliveredCount, complete, t);
     updateButtons();
+    renderRouteTrack();
     wasComplete = complete;
   }
 
@@ -1122,22 +1275,22 @@
 
     if (route.length === 0) {
       hintMain.textContent = 'オレンジのお店をタップして、配達する注文を選ぼう。';
-      hintSub.textContent = '8件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。';
+      hintSub.textContent = MAX_ORDERS + '件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。';
       return;
     }
 
     if (waitingDrops > 0) {
       hintMain.textContent = '青緑の配達先をタップして届けよう（残り' + (MAX_ORDERS - deliveredCount) + '件）。';
       hintSub.textContent = remainingOrders > 0
-        ? 'まだお店を追加できます。まとめ受け取りで距離を縮めよう。'
-        : '8件選択中。配達先をすべて回れば完成です。';
+        ? 'まだお店を追加できます。「配達順」はドラッグで並べ替えできます。'
+        : MAX_ORDERS + '件選択中。配達先をすべて回れば完成です。';
       return;
     }
 
     hintMain.textContent = '次のオレンジのお店をタップして、注文を追加しよう。';
     hintSub.textContent = remainingOrders > 0
       ? 'あと' + remainingOrders + '件選べます。近い注文を探してみよう。'
-      : '8件選択済み。配達先をタップして届けよう。';
+      : MAX_ORDERS + '件選択済み。配達先をタップして届けよう。';
   }
 
   function updateButtons() {
@@ -1146,12 +1299,245 @@
     resetBtn.disabled = route.length === 0;
   }
 
+  /* ---------- route order / drag & drop ---------- */
+
+  function stopLabel(stop) {
+    const order = ORDER_BY_ID.get(stop.id);
+    return stop.kind === 'pickup' ? order.pickupLabel : order.dropLabel;
+  }
+
+  function renderRouteTrack() {
+    routeTrack.textContent = '';
+    const hasStops = route.length > 0;
+    routeTrack.hidden = !hasStops;
+    routeEmpty.hidden = hasStops;
+    if (!hasStops) return;
+
+    route.forEach((stop, index) => {
+      const li = document.createElement('li');
+      li.className = 'stop-chip ' + stop.kind;
+      li.dataset.index = String(index);
+      li.dataset.id = stop.id;
+      li.dataset.kind = stop.kind;
+      li.textContent = stopLabel(stop);
+      const type = stop.kind === 'pickup' ? '受け取り' : '配達先';
+      li.setAttribute('aria-label', stopLabel(stop) + '（' + type + '）。ドラッグで並べ替え');
+      li.title = stopLabel(stop) + '（' + type + '）';
+      routeTrack.appendChild(li);
+    });
+  }
+
+  function firstInvalidOrder(sequence) {
+    const positions = new Map();
+    sequence.forEach((stop, index) => {
+      positions.set(stop.id + ':' + stop.kind, index);
+    });
+
+    for (const order of ORDERS) {
+      const pickup = positions.get(order.id + ':pickup');
+      const drop = positions.get(order.id + ':drop');
+      if (drop !== undefined && pickup === undefined) return order;
+      if (pickup !== undefined && drop !== undefined && pickup > drop) return order;
+    }
+    return null;
+  }
+
+  let dragState = null;
+
+  function cleanupDrag() {
+    if (!dragState) return;
+    const state = dragState;
+    dragState = null;
+
+    if (state.ghost) state.ghost.remove();
+    state.chip.classList.remove('is-drag-placeholder');
+    routeTrack.classList.remove('is-dragging');
+    document.body.classList.remove('is-reordering');
+
+    try {
+      if (state.chip.hasPointerCapture(state.pointerId)) {
+        state.chip.releasePointerCapture(state.pointerId);
+      }
+    } catch (err) { /* noop */ }
+  }
+
+  function beginDrag(event) {
+    const state = dragState;
+    if (!state) return;
+
+    state.active = true;
+
+    const chip = state.chip;
+    const rect = chip.getBoundingClientRect();
+    const ghost = chip.cloneNode(true);
+    ghost.classList.add('drag-ghost');
+    ghost.classList.remove('is-drag-placeholder');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.style.width = rect.width + 'px';
+    ghost.style.height = rect.height + 'px';
+    ghost.style.left = (event.clientX - state.offsetX) + 'px';
+    ghost.style.top = (event.clientY - state.offsetY) + 'px';
+    document.body.appendChild(ghost);
+
+    state.ghost = ghost;
+    chip.classList.add('is-drag-placeholder');
+    routeTrack.classList.add('is-dragging');
+    document.body.classList.add('is-reordering');
+    haptic(8);
+  }
+
+  function updateDragPosition(event) {
+    const state = dragState;
+    if (!state || !state.active) return;
+
+    state.ghost.style.left = (event.clientX - state.offsetX) + 'px';
+    state.ghost.style.top = (event.clientY - state.offsetY) + 'px';
+
+    const x = event.clientX;
+    const y = event.clientY;
+    const trackRect = routeTrack.getBoundingClientRect();
+    const pad = 42;
+    if (
+      x < trackRect.left - pad || x > trackRect.right + pad ||
+      y < trackRect.top - pad || y > trackRect.bottom + pad
+    ) {
+      return;
+    }
+
+    const chip = state.chip;
+    const others = [...routeTrack.querySelectorAll('.stop-chip')].filter(el => el !== chip);
+    if (others.length === 0) return;
+
+    let target = null;
+    let nearest = Infinity;
+    for (const el of others) {
+      const rect = el.getBoundingClientRect();
+      const dist = Math.hypot(x - (rect.left + rect.width / 2), y - (rect.top + rect.height / 2));
+      if (dist < nearest) {
+        nearest = dist;
+        target = el;
+      }
+    }
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+    const sameRow = y >= rect.top && y <= rect.bottom;
+    const after = sameRow ? (x > rect.left + rect.width / 2) : (y > rect.top + rect.height / 2);
+
+    if (after) {
+      if (target.nextElementSibling === chip) return;
+      routeTrack.insertBefore(chip, target.nextSibling);
+    } else {
+      if (chip.nextElementSibling === target) return;
+      routeTrack.insertBefore(chip, target);
+    }
+  }
+
+  function finishDrag(event) {
+    const state = dragState;
+    if (!state || event.pointerId !== state.pointerId) return;
+
+    if (!state.active) {
+      cleanupDrag();
+      return;
+    }
+
+    const newRoute = [...routeTrack.querySelectorAll('.stop-chip')]
+      .map(el => route[Number(el.dataset.index)])
+      .filter(Boolean);
+
+    cleanupDrag();
+
+    if (newRoute.length !== route.length) {
+      render();
+      return;
+    }
+
+    const sameOrder = newRoute.every((stop, index) =>
+      stop.id === route[index].id && stop.kind === route[index].kind
+    );
+    if (sameOrder) {
+      render();
+      return;
+    }
+
+    const invalid = firstInvalidOrder(newRoute);
+    if (invalid) {
+      render();
+      showInvalidSequence(invalid);
+      return;
+    }
+
+    toastEl.classList.remove('is-show');
+    setRoute(newRoute);
+    haptic(8);
+  }
+
+  function cancelDrag() {
+    if (!dragState) return;
+    cleanupDrag();
+    render();
+  }
+
+  function showInvalidSequence(order) {
+    toast(order.dropLabel + ' は ' + order.pickupLabel + ' より後に置いてください。元の順番に戻しました');
+    routePanel.classList.remove('is-invalid');
+    void routePanel.offsetWidth;
+    routePanel.classList.add('is-invalid');
+    window.setTimeout(() => routePanel.classList.remove('is-invalid'), 520);
+    haptic(18);
+  }
+
+  routeTrack.addEventListener('pointerdown', (event) => {
+    if (dragState) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    if (event.isPrimary === false) return;
+
+    const chip = event.target.closest('.stop-chip');
+    if (!chip) return;
+
+    const rect = chip.getBoundingClientRect();
+    dragState = {
+      pointerId: event.pointerId,
+      chip,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      active: false,
+      ghost: null
+    };
+
+    try { chip.setPointerCapture(event.pointerId); } catch (err) { /* noop */ }
+    event.preventDefault();
+  });
+
+  routeTrack.addEventListener('pointermove', (event) => {
+    if (!dragState || event.pointerId !== dragState.pointerId) return;
+
+    if (!dragState.active) {
+      const dx = event.clientX - dragState.startX;
+      const dy = event.clientY - dragState.startY;
+      if (Math.hypot(dx, dy) < 5) return;
+      beginDrag(event);
+    }
+
+    event.preventDefault();
+    updateDragPosition(event);
+  });
+
+  routeTrack.addEventListener('pointerup', finishDrag);
+  routeTrack.addEventListener('pointercancel', cancelDrag);
+  routeTrack.addEventListener('contextmenu', (event) => event.preventDefault());
+  routeTrack.addEventListener('dragstart', (event) => event.preventDefault());
+  window.addEventListener('blur', cancelDrag);
+
   /* ---------- actions ---------- */
 
   function addPickup(id) {
     const selectedCount = new Set(route.map(s => s.id)).size;
     if (selectedCount >= MAX_ORDERS) {
-      toast('注文は8件まで。番号がついた地点をタップすると外せます');
+      toast('注文は' + MAX_ORDERS + '件まで。文字がついた地点をタップすると外せます');
       return;
     }
     setRoute([...route, { id, kind: 'pickup' }]);
