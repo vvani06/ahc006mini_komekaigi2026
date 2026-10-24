@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f2ecdf">
-<title>Food Delivery — 26件から5件の配達ゲーム</title>
+<title>Food Delivery — 26件から6件の配達ゲーム</title>
 <style>
   :root {
     --bg: #f2ecdf;
@@ -524,6 +524,13 @@
 
   .result-main { min-width: 0; flex: 1; }
 
+  .result-actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
   .result-kicker {
     display: block;
     margin-bottom: 1px;
@@ -542,7 +549,7 @@
 
   .result-score strong {
     color: var(--accent-deep);
-    font-size: 27px;
+    font-size: clamp(22px, 7vw, 27px);
     font-weight: 900;
     letter-spacing: -.03em;
     font-variant-numeric: tabular-nums;
@@ -564,20 +571,45 @@
   }
 
   .result-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     flex: none;
     min-height: 42px;
-    padding: 0 14px;
+    padding: 0 11px;
     border: 0;
     border-radius: 12px;
     background: var(--ink);
     color: #fffcf5;
     font: inherit;
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 800;
+    white-space: nowrap;
     cursor: pointer;
     transition: transform .08s ease, background .15s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .result-btn:active { transform: scale(.96); background: #101917; }
+
+  .result-btn.share { background: #111; }
+  .result-btn.again {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+  }
+  .result-btn.again:active { background: #f1eadf; }
+
+  .share-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+  }
 
   /* ---------- legend / hint ---------- */
   .legend {
@@ -798,6 +830,8 @@
     .stat { padding: 0 9px; }
     .legend { gap: 6px 10px; font-size: 10px; }
     .btn { font-size: 12px; }
+    .result { flex-wrap: wrap; }
+    .result-actions { width: 100%; justify-content: flex-end; }
   }
 
   @media (max-height: 660px) and (orientation: portrait) {
@@ -829,15 +863,15 @@
       <span class="badge">AHC006</span>
       <span>Food Delivery / 非公式ミニ版</span>
     </div>
-    <h1>Food Delivery <small>26 → 5</small></h1>
-    <p class="lead">お店 a で受け取って、配達先 a′ へ。タップと並べ替えで、5件の注文を短い距離で届けよう。</p>
+    <h1>Food Delivery <small>26 → 6</small></h1>
+    <p class="lead">お店 a で受け取って、配達先 a′ へ。タップと並べ替えで、6件の注文を短い距離で届けよう。</p>
   </header>
 
   <section class="scoreboard" aria-label="現在の状況">
     <div class="stat">
       <span class="stat-label">選んだ注文</span>
-      <div class="stat-value"><span id="selectedValue">0</span><span class="unit">/ 5</span></div>
-      <span class="stat-sub" id="selectSub">あと5件</span>
+      <div class="stat-value"><span id="selectedValue">0</span><span class="unit">/ 6</span></div>
+      <span class="stat-sub" id="selectSub">あと6件</span>
     </div>
     <div class="stat">
       <span class="stat-label">移動距離 T</span>
@@ -847,7 +881,7 @@
     <div class="stat">
       <span class="stat-label">スコア</span>
       <div class="stat-value is-muted" id="scoreValue">—</div>
-      <span class="stat-sub" id="bestValue">5件で確定</span>
+      <span class="stat-sub" id="bestValue">6件で確定</span>
     </div>
   </section>
 
@@ -885,7 +919,12 @@
       <div class="result-score"><strong id="resultScore">0</strong><span>SCORE</span></div>
       <span class="result-best" id="resultBest">BEST —</span>
     </div>
-    <button type="button" class="result-btn" id="againBtn">もう一度</button>
+    <div class="result-actions">
+      <button type="button" class="result-btn share" id="shareBtn" aria-label="Xで結果を共有" title="対応端末では経路画像付きで共有します">
+        <span class="share-x" aria-hidden="true">X</span>で共有
+      </button>
+      <button type="button" class="result-btn again" id="againBtn">もう一度</button>
+    </div>
   </div>
 
   <div class="legend" aria-label="凡例">
@@ -896,7 +935,7 @@
 
   <p class="hint">
     <span id="hintMain">オレンジのお店をタップして、配達する注文を選ぼう。</span>
-    <small id="hintSub">5件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
+    <small id="hintSub">6件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
   </p>
 
   <div class="controls">
@@ -914,7 +953,7 @@
   <details class="rules">
     <summary>あそびかた / 採点について</summary>
     <ul>
-      <li>26件の注文（a〜z）から<strong>好きな5件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
+      <li>26件の注文（a〜z）から<strong>好きな6件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
       <li>オレンジの四角がお店 <strong>a</strong>、青緑の丸が配達先 <strong>a′</strong>。同じ文字の2点が1つの注文です。</li>
       <li>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</li>
       <li><strong>「配達順」</strong>には、タップした地点が処理順に並びます。各チップをドラッグ＆ドロップすると順番を入れ替えられます。</li>
@@ -939,7 +978,7 @@
 (() => {
   'use strict';
 
-  const MAX_ORDERS = 5;
+  const MAX_ORDERS = 6;
   const PRIME = '′';
   const OFFICE = { x: 400, y: 400 };
 
@@ -1011,6 +1050,7 @@
   const resultScore = document.getElementById('resultScore');
   const resultBest = document.getElementById('resultBest');
   const againBtn = document.getElementById('againBtn');
+  const shareBtn = document.getElementById('shareBtn');
   const toastEl = document.getElementById('toast');
 
   const nf = new Intl.NumberFormat('ja-JP');
@@ -1107,7 +1147,7 @@
   let best = 0;
   let hoveredOrderId = null;
 
-  const BEST_KEY = 'ahc006-mini-best-v2';
+  const BEST_KEY = 'ahc006-mini-best-v3';
   try {
     const stored = Number(window.localStorage.getItem(BEST_KEY));
     if (Number.isFinite(stored) && stored > 0) best = stored;
@@ -1709,6 +1749,418 @@
     }
   }
 
+  /* ---------- share ---------- */
+
+  const SHARE_FONT = '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif';
+
+  function traceRoundRect(ctx, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rr);
+    ctx.arcTo(x + w, y + h, x, y + h, rr);
+    ctx.arcTo(x, y + h, x, y, rr);
+    ctx.arcTo(x, y, x + w, y, rr);
+    ctx.closePath();
+  }
+
+  function setShareFont(ctx, size, weight) {
+    ctx.font = String(weight) + ' ' + size + 'px ' + SHARE_FONT;
+  }
+
+  function tweetText() {
+    const score = scoreFor(totalDistance());
+    return 'AHC006 Food Delivery KomeKaigi2026ミニ版Edition でスコア ' + fmt(score) +
+      ' を達成しました！ #AHC006 #KomeKaigi2026';
+  }
+
+  function buildShareCanvas() {
+    const W = 1080;
+    const H = 1080;
+    const t = totalDistance();
+    const score = scoreFor(t);
+    const selectedIds = new Set(route.map(s => s.id));
+    const selectedOrders = ORDERS.filter(o => selectedIds.has(o.id));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const COL = {
+      bgA: '#fff9ed',
+      bgB: '#efe3d0',
+      card: '#fffcf5',
+      ink: '#26322f',
+      muted: '#827a6c',
+      line: '#e7dccb',
+      accent: '#e05b2b',
+      accentDeep: '#b8431b',
+      accentSoft: '#fbe4d8',
+      teal: '#1f7f72',
+      tealSoft: '#dceee9',
+      tealDark: '#125c52'
+    };
+
+    // 背景
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, COL.bgA);
+    bg.addColorStop(1, COL.bgB);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(224, 91, 43, .055)';
+    ctx.beginPath();
+    ctx.arc(1010, 90, 190, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ヘッダー
+    traceRoundRect(ctx, 60, 52, 132, 38, 19);
+    ctx.fillStyle = COL.accentSoft;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(224, 91, 43, .25)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = COL.accentDeep;
+    setShareFont(ctx, 19, 900);
+    ctx.fillText('AHC006', 126, 72);
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = COL.ink;
+    setShareFont(ctx, 52, 900);
+    ctx.fillText('Food Delivery', 60, 140);
+
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 21, 600);
+    ctx.fillText('KomeKaigi2026 ミニ版 Edition', 60, 174);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 13, 800);
+    ctx.fillText('SCORE', 1020, 72);
+    ctx.fillStyle = COL.accentDeep;
+    setShareFont(ctx, 62, 900);
+    ctx.fillText(fmt(score), 1020, 142);
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 19, 600);
+    ctx.fillText('T = ' + fmt(t), 1020, 176);
+
+    // 地図カード
+    const mapX = 60;
+    const mapY = 210;
+    const mapW = 700;
+    const mapH = 700;
+    traceRoundRect(ctx, mapX, mapY, mapW, mapH, 32);
+    ctx.fillStyle = COL.card;
+    ctx.fill();
+    ctx.strokeStyle = COL.line;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    traceRoundRect(ctx, mapX, mapY, mapW, mapH, 32);
+    ctx.clip();
+
+    const pad = 24;
+    const innerX = mapX + pad;
+    const innerY = mapY + pad;
+    const innerSize = mapW - pad * 2;
+    const scale = innerSize / 800;
+    const mx = x => innerX + x * scale;
+    const my = y => innerY + y * scale;
+
+    // 方眼
+    ctx.strokeStyle = 'rgba(231, 220, 203, .8)';
+    ctx.lineWidth = 1;
+    for (let v = 0; v <= 800; v += 100) {
+      ctx.beginPath();
+      ctx.moveTo(mx(v), my(0));
+      ctx.lineTo(mx(v), my(800));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(mx(0), my(v));
+      ctx.lineTo(mx(800), my(v));
+      ctx.stroke();
+    }
+
+    // 選ばれなかった注文は薄い点だけ表示
+    for (const order of ORDERS) {
+      if (selectedIds.has(order.id)) continue;
+      const p = order.p;
+      const d = order.d;
+      ctx.fillStyle = 'rgba(224, 91, 43, .18)';
+      ctx.fillRect(mx(p.x) - 3, my(p.y) - 3, 6, 6);
+      ctx.fillStyle = 'rgba(31, 127, 114, .16)';
+      ctx.beginPath();
+      ctx.arc(mx(d.x), my(d.y), 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ルート
+    const points = [OFFICE, ...route.map(stopPoint), OFFICE];
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(mx(p.x), my(p.y));
+      else ctx.lineTo(mx(p.x), my(p.y));
+    });
+    ctx.strokeStyle = COL.card;
+    ctx.lineWidth = 16;
+    ctx.stroke();
+    ctx.strokeStyle = COL.accent;
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // オフィス
+    const ox = mx(400);
+    const oy = my(400);
+    ctx.beginPath();
+    ctx.arc(ox, oy, 20, 0, Math.PI * 2);
+    ctx.fillStyle = COL.ink;
+    ctx.fill();
+    ctx.strokeStyle = COL.card;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = COL.card;
+    ctx.beginPath();
+    ctx.moveTo(ox - 9, oy + 1);
+    ctx.lineTo(ox, oy - 9);
+    ctx.lineTo(ox + 9, oy + 1);
+    ctx.lineTo(ox + 9, oy + 10);
+    ctx.lineTo(ox + 2, oy + 10);
+    ctx.lineTo(ox + 2, oy + 3);
+    ctx.lineTo(ox - 2, oy + 3);
+    ctx.lineTo(ox - 2, oy + 10);
+    ctx.lineTo(ox - 9, oy + 10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#8f8474';
+    setShareFont(ctx, 11, 700);
+    ctx.fillText('OFFICE', ox, oy + 38);
+
+    // 選んだ注文の地点
+    for (const stop of route) {
+      const order = ORDER_BY_ID.get(stop.id);
+      const p = stop.kind === 'pickup' ? order.p : order.d;
+      const x = mx(p.x);
+      const y = my(p.y);
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.strokeStyle = COL.card;
+      ctx.lineWidth = 3;
+      ctx.fillStyle = stop.kind === 'pickup' ? COL.accent : COL.teal;
+
+      if (stop.kind === 'pickup') {
+        traceRoundRect(ctx, -18, -18, 36, 36, 10);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      setShareFont(ctx, stop.kind === 'pickup' ? 19 : 17, 900);
+      ctx.fillText(stopLabel(stop), 0, 1);
+      ctx.restore();
+    }
+
+    ctx.restore();
+
+    // 右側の情報
+    ctx.strokeStyle = 'rgba(231, 220, 203, .9)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(790, 232);
+    ctx.lineTo(790, 910);
+    ctx.stroke();
+
+    const px = 810;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 12, 800);
+    ctx.fillText('DISTANCE T', px, 252);
+
+    ctx.fillStyle = COL.ink;
+    setShareFont(ctx, 34, 900);
+    ctx.fillText(fmt(t), px, 292);
+
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 12, 800);
+    ctx.fillText('ORDERS', px, 334);
+
+    ctx.fillStyle = COL.ink;
+    setShareFont(ctx, 22, 800);
+    ctx.fillText(selectedOrders.length + ' / 26', px, 366);
+
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 12, 800);
+    ctx.fillText('STOPS', px, 406);
+
+    ctx.fillStyle = COL.ink;
+    setShareFont(ctx, 22, 800);
+    ctx.fillText(String(route.length), px, 438);
+
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 12, 800);
+    ctx.fillText('SELECTED', px, 478);
+
+    let rowY = 510;
+    for (const stop of route.filter(s => s.kind === 'pickup')) {
+      const order = ORDER_BY_ID.get(stop.id);
+      ctx.fillStyle = COL.ink;
+      setShareFont(ctx, 18, 700);
+      ctx.fillText(order.pickupLabel + ' → ' + order.dropLabel, px, rowY);
+      rowY += 32;
+    }
+
+    ctx.fillStyle = COL.accentDeep;
+    setShareFont(ctx, 17, 900);
+    ctx.fillText('#AHC006', px, 830);
+
+    ctx.fillStyle = COL.teal;
+    setShareFont(ctx, 17, 900);
+    ctx.fillText('#KomeKaigi2026', px, 858);
+
+    // 下部の配達順
+    ctx.strokeStyle = 'rgba(231, 220, 203, .9)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(60, 938);
+    ctx.lineTo(1020, 938);
+    ctx.stroke();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = COL.muted;
+    setShareFont(ctx, 12, 800);
+    ctx.fillText('ROUTE', 60, 968);
+
+    const chipW = 40;
+    const chipH = 32;
+    const gap = 18;
+    const totalChips = route.length * chipW + Math.max(0, route.length - 1) * gap;
+    let chipX = 60 + (960 - totalChips) / 2;
+    const chipY = 986;
+
+    route.forEach((stop, index) => {
+      traceRoundRect(ctx, chipX, chipY, chipW, chipH, 9);
+      ctx.fillStyle = stop.kind === 'pickup' ? COL.accentSoft : COL.tealSoft;
+      ctx.fill();
+      ctx.strokeStyle = stop.kind === 'pickup'
+        ? 'rgba(224, 91, 43, .3)'
+        : 'rgba(31, 127, 114, .28)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      ctx.fillStyle = stop.kind === 'pickup' ? COL.accentDeep : COL.tealDark;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      setShareFont(ctx, 16, 900);
+      ctx.fillText(stopLabel(stop), chipX + chipW / 2, chipY + chipH / 2 + 1);
+
+      if (index < route.length - 1) {
+        ctx.fillStyle = '#b6a992';
+        setShareFont(ctx, 14, 800);
+        ctx.fillText('→', chipX + chipW + gap / 2, chipY + chipH / 2 + 1);
+      }
+
+      chipX += chipW + gap;
+    });
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#8f8474';
+    setShareFont(ctx, 13, 600);
+    ctx.fillText('AHC006 Food Delivery / KomeKaigi2026 ミニ版 Edition', 540, 1055);
+
+    return canvas;
+  }
+
+  function canvasToFile(canvas) {
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return new File([bytes], 'ahc006-komekaigi2026.png', { type: 'image/png' });
+  }
+
+  function fallbackShare(canvas, text) {
+    const intentUrl = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
+    window.open(intentUrl, '_blank', 'noopener');
+
+    const link = document.createElement('a');
+    link.download = 'ahc006-komekaigi2026.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    toast('経路画像を保存しました。Xの投稿画面に添付してください');
+  }
+
+  function shareResult() {
+    if (route.filter(s => s.kind === 'drop').length !== MAX_ORDERS) return;
+
+    const text = tweetText();
+    let canvas = null;
+    try {
+      canvas = buildShareCanvas();
+    } catch (err) {
+      canvas = null;
+    }
+
+    if (!canvas) {
+      window.open('https://x.com/intent/post?text=' + encodeURIComponent(text), '_blank', 'noopener');
+      toast('共有画像を作れませんでした。Xでテキストを投稿できます');
+      return;
+    }
+
+    let file = null;
+    try {
+      file = canvasToFile(canvas);
+    } catch (err) {
+      file = null;
+    }
+
+    if (file && navigator.share && navigator.canShare) {
+      let canShareFile = false;
+      try {
+        canShareFile = navigator.canShare({ files: [file] });
+      } catch (err) {
+        canShareFile = false;
+      }
+
+      if (canShareFile) {
+        try {
+          navigator.share({ text, files: [file] }).catch(err => {
+            if (err && err.name === 'AbortError') return;
+            fallbackShare(canvas, text);
+          });
+        } catch (err) {
+          fallbackShare(canvas, text);
+        }
+        return;
+      }
+    }
+
+    fallbackShare(canvas, text);
+  }
+
   /* ---------- buttons ---------- */
 
   undoBtn.addEventListener('click', () => {
@@ -1738,6 +2190,7 @@
   });
 
   againBtn.addEventListener('click', resetRoute);
+  shareBtn.addEventListener('click', shareResult);
 
   /* ---------- start ---------- */
 
