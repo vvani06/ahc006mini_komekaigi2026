@@ -55,10 +55,12 @@
 
   .eyebrow {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 4px 8px;
     font-size: 10.5px;
     font-weight: 700;
+    line-height: 1.4;
     letter-spacing: .1em;
     color: var(--muted);
   }
@@ -240,6 +242,15 @@
     stroke-width: 4.6;
   }
   .map-card.is-complete .route-line { stroke: #d5532a; }
+
+  .route-arrow {
+    fill: var(--accent);
+    stroke: #fffcf5;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .map-card.is-complete .route-arrow { fill: #d5532a; }
 
   .office-house { fill: #fffcf5; }
   .office-ring {
@@ -593,13 +604,15 @@
     text-decoration: none;
   }
   .result-btn.again,
-  .result-btn.save {
+  .result-btn.save,
+  .result-btn.copy {
     border: 1px solid var(--line);
     background: transparent;
     color: var(--ink);
   }
   .result-btn.again:active,
-  .result-btn.save:active { background: #f1eadf; }
+  .result-btn.save:active,
+  .result-btn.copy:active { background: #f1eadf; }
 
   .share-flow {
     margin-top: 9px;
@@ -617,13 +630,15 @@
 
   .share-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    grid-template-columns: 1fr 1fr 1.03fr;
+    gap: 5px;
   }
 
   .share-row .result-btn {
     width: 100%;
     min-height: 42px;
+    padding: 0 5px;
+    font-size: 11px;
   }
 
   .share-x {
@@ -885,7 +900,7 @@
   <header class="hero">
     <div class="eyebrow">
       <span class="badge">AHC006</span>
-      <span>Food Delivery / 非公式ミニ版</span>
+      <span>Food Delivery / KomeKaigi2026用 非公式ミニ版</span>
     </div>
     <h1>Food Delivery <small>26 → 6</small></h1>
     <p class="lead">お店 a で受け取って、配達先 a′ へ。タップと並べ替えで、6件の注文を短い距離で届けよう。</p>
@@ -918,6 +933,7 @@
         <path id="routeHalo" class="route-halo"/>
         <path id="routeLine" class="route-line"/>
       </g>
+      <g id="routeArrows" aria-hidden="true"></g>
       <g id="office" aria-hidden="true">
         <circle cx="400" cy="400" r="36" class="office-ring"/>
         <circle cx="400" cy="400" r="23" fill="#26322f" stroke="#fffcf5" stroke-width="3"/>
@@ -947,9 +963,10 @@
       <button type="button" class="result-btn again" id="againBtn">もう一度</button>
     </div>
     <div class="share-flow">
-      <p class="share-guide">① 画像を保存 → ② Xでポストして画像を添付</p>
+      <p class="share-guide">① 画像を保存/コピー → ② Xでポストして画像を添付</p>
       <div class="share-row">
         <button type="button" class="result-btn save" id="saveImageBtn">画像を保存</button>
+        <button type="button" class="result-btn copy" id="copyImageBtn" aria-label="画像をクリップボードにコピー" title="画像をクリップボードにコピー">画像をコピー</button>
         <a class="result-btn share" id="postLink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Xでポスト">
           <span class="share-x" aria-hidden="true">X</span>でポスト
         </a>
@@ -960,7 +977,7 @@
   <div class="legend" aria-label="凡例">
     <span><i class="key shop" aria-hidden="true"></i>お店 a <b class="legend-arrow" aria-hidden="true">→</b> <i class="key drop" aria-hidden="true"></i>配達先 a′</span>
     <span><i class="key office" aria-hidden="true"></i>オフィス（発着）</span>
-    <span><i class="key num" aria-hidden="true">a</i>地図の文字タップで取消</span>
+    <span><i class="key num" aria-hidden="true">a</i>お店=注文ごと取消 / 配達先=配達先だけ取消</span>
   </div>
 
   <p class="hint">
@@ -988,17 +1005,18 @@
       <li>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</li>
       <li><strong>「配達順」</strong>には、タップした地点が処理順に並びます。各チップをドラッグ＆ドロップすると順番を入れ替えられます。</li>
       <li>配達先を対応するお店より前に動かすような<strong>不正な順番</strong>にした場合は、メッセージを出して元の順番に戻ります。</li>
-      <li>地図上の文字がついた地点をタップすると、その注文をルートから外して選び直せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
+      <li>地図上のお店の文字をタップすると注文ごと、配達先の文字をタップすると配達先だけをルートから外せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
       <li>PCでは、お店や配達先にカーソルを合わせると、同じ注文の2点と点線がハイライトされます。</li>
       <li>移動時間は<strong>マンハッタン距離</strong>（|xの差| + |yの差|）。オフィスを出て、最後にオフィスへ戻るまでの合計が T です。</li>
       <li>スコアは <strong>round(10⁸ / (1000 + T))</strong>。T が短いほど高得点になります。</li>
       <li>クリア後は「画像を保存」で経路画像をダウンロードし、「Xでポスト」からXの投稿画面を開けます。</li>
+      <li>注文データは、オフィスから遠い注文ほど「お店→配達先」が短めになるように調整した固定データです。</li>
     </ul>
   </details>
 
   <footer>
     元問題: <a href="https://atcoder.jp/contests/ahc006/tasks/ahc006_a" target="_blank" rel="noopener">AtCoder Heuristic Contest 006 «Food Delivery»</a><br>
-    非公式の学習用ミニ版です。注文データは問題の入力例1から26件を抜粋し、a〜z を割り当てて使用しています。
+    非公式の学習用ミニ版です。注文データはこのページ用に生成した固定データを使用しています。
   </footer>
 
 </div>
@@ -1013,34 +1031,34 @@
   const PRIME = '′';
   const OFFICE = { x: 400, y: 400 };
 
-  // 入力例1から、端点が重ならない26件を選び a〜z を割り当てた固定データ
+  // このページ用に生成した固定データ（原点から遠い注文ほどペア距離が短くなる傾向）
   const RAW_ORDERS = [
-    ['a', 406, 19, 347, 786],
-    ['b', 4, 689, 659, 189],
-    ['c', 96, 89, 424, 397],
-    ['d', 523, 617, 212, 413],
-    ['e', 453, 664, 592, 230],
-    ['f', 582, 457, 46, 186],
-    ['g', 681, 91, 152, 276],
-    ['h', 772, 789, 347, 232],
-    ['i', 688, 445, 99, 358],
-    ['j', 9, 518, 747, 560],
-    ['k', 10, 388, 410, 304],
-    ['l', 550, 77, 402, 558],
-    ['m', 727, 244, 83, 733],
-    ['n', 288, 175, 785, 34],
-    ['o', 787, 446, 212, 522],
-    ['p', 367, 459, 661, 366],
-    ['q', 212, 1, 532, 391],
-    ['r', 749, 353, 164, 196],
-    ['s', 493, 787, 610, 634],
-    ['t', 299, 709, 646, 556],
-    ['u', 294, 38, 297, 423],
-    ['v', 557, 157, 10, 786],
-    ['w', 147, 774, 614, 739],
-    ['x', 310, 529, 292, 315],
-    ['y', 696, 671, 4, 2],
-    ['z', 151, 599, 215, 319]
+    ['a', 448, 78, 277, 173],
+    ['b', 709, 59, 512, 30],
+    ['c', 49, 86, 186, 183],
+    ['d', 208, 99, 415, 162],
+    ['e', 347, 94, 313, 327],
+    ['f', 592, 107, 620, 313],
+    ['g', 66, 224, 133, 400],
+    ['h', 357, 232, 471, 438],
+    ['i', 590, 233, 770, 132],
+    ['j', 717, 227, 513, 169],
+    ['k', 213, 264, 332, 449],
+    ['l', 453, 250, 664, 157],
+    ['m', 722, 390, 520, 345],
+    ['n', 585, 417, 770, 305],
+    ['o', 82, 549, 32, 329],
+    ['p', 198, 544, 136, 310],
+    ['q', 342, 573, 225, 367],
+    ['r', 443, 570, 685, 495],
+    ['s', 586, 562, 655, 770],
+    ['t', 751, 586, 553, 632],
+    ['u', 88, 701, 247, 638],
+    ['v', 331, 705, 133, 623],
+    ['w', 579, 706, 510, 512],
+    ['x', 728, 696, 759, 511],
+    ['y', 219, 740, 269, 561],
+    ['z', 461, 730, 650, 670]
   ];
 
   const ORDERS = RAW_ORDERS.map(([id, ax, ay, cx, cy]) => ({
@@ -1059,6 +1077,7 @@
   const routeGroup = document.getElementById('routeGroup');
   const routeHalo = document.getElementById('routeHalo');
   const routeLine = document.getElementById('routeLine');
+  const routeArrows = document.getElementById('routeArrows');
   const markerLayer = document.getElementById('markers');
   const rippleLayer = document.getElementById('ripples');
   const mapCard = document.getElementById('mapCard');
@@ -1082,6 +1101,7 @@
   const resultBest = document.getElementById('resultBest');
   const againBtn = document.getElementById('againBtn');
   const saveImageBtn = document.getElementById('saveImageBtn');
+  const copyImageBtn = document.getElementById('copyImageBtn');
   const postLink = document.getElementById('postLink');
   const toastEl = document.getElementById('toast');
 
@@ -1179,7 +1199,7 @@
   let best = 0;
   let hoveredOrderId = null;
 
-  const BEST_KEY = 'ahc006-mini-best-v3';
+  const BEST_KEY = 'ahc006-mini-best-v4';
   try {
     const stored = Number(window.localStorage.getItem(BEST_KEY));
     if (Number.isFinite(stored) && stored > 0) best = stored;
@@ -1273,12 +1293,32 @@
     }
 
     // オフィス → 各停車地 → オフィス
+    routeArrows.textContent = '';
     if (route.length > 0) {
       const points = [OFFICE, ...route.map(stopPoint), OFFICE];
       const d = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x + ' ' + p.y).join(' ');
       routeHalo.setAttribute('d', d);
       routeLine.setAttribute('d', d);
       routeGroup.style.display = '';
+
+      for (let i = 1; i < points.length; i += 1) {
+        const a = points[i - 1];
+        const b = points[i];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const len = Math.hypot(dx, dy);
+        if (len < 28) continue;
+
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        const midX = a.x + dx * 0.58;
+        const midY = a.y + dy * 0.58;
+        const arrow = svgEl('path', {
+          class: 'route-arrow',
+          d: 'M -7 -6.5 L 11 0 L -7 6.5 Z',
+          transform: 'translate(' + midX + ' ' + midY + ') rotate(' + angle + ')'
+        });
+        routeArrows.appendChild(arrow);
+      }
     } else {
       routeGroup.style.display = 'none';
     }
@@ -1636,6 +1676,14 @@
     haptic(12);
   }
 
+  function removeDrop(id) {
+    const next = route.filter(s => !(s.id === id && s.kind === 'drop'));
+    if (next.length === route.length) return;
+    setRoute(next);
+    toast('配達先だけルートから外しました（お店は残っています）');
+    haptic(10);
+  }
+
   function handleOrderTap(orderId, kind) {
     const picked = route.some(s => s.id === orderId && s.kind === 'pickup');
     const delivered = route.some(s => s.id === orderId && s.kind === 'drop');
@@ -1650,7 +1698,7 @@
     }
 
     if (delivered) {
-      removeOrder(orderId);
+      removeDrop(orderId);
     } else if (picked) {
       addDrop(orderId);
     } else {
@@ -1872,7 +1920,7 @@
 
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 21, 600);
-    ctx.fillText('KomeKaigi2026 ミニ版 Edition', 60, 174);
+    ctx.fillText('KomeKaigi2026用 非公式ミニ版', 60, 174);
 
     ctx.textAlign = 'right';
     ctx.fillStyle = COL.muted;
@@ -1951,6 +1999,32 @@
     ctx.strokeStyle = COL.accent;
     ctx.lineWidth = 8;
     ctx.stroke();
+
+    // 経路の向きを示す矢印
+    for (let i = 1; i < points.length; i += 1) {
+      const a = points[i - 1];
+      const b = points[i];
+      const ax = mx(a.x);
+      const ay = my(a.y);
+      const bx = mx(b.x);
+      const by = my(b.y);
+      if (Math.hypot(bx - ax, by - ay) < 24) continue;
+
+      ctx.save();
+      ctx.translate(ax + (bx - ax) * 0.58, ay + (by - ay) * 0.58);
+      ctx.rotate(Math.atan2(by - ay, bx - ax));
+      ctx.beginPath();
+      ctx.moveTo(-9, -7);
+      ctx.lineTo(12, 0);
+      ctx.lineTo(-9, 7);
+      ctx.closePath();
+      ctx.fillStyle = COL.accent;
+      ctx.fill();
+      ctx.strokeStyle = COL.card;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // オフィス
     const ox = mx(400);
@@ -2121,7 +2195,7 @@
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = '#8f8474';
     setShareFont(ctx, 13, 600);
-    ctx.fillText('AHC006 Food Delivery / KomeKaigi2026 ミニ版 Edition', 540, 1055);
+    ctx.fillText('AHC006 Food Delivery / KomeKaigi2026用 非公式ミニ版', 540, 1055);
 
     return canvas;
   }
@@ -2149,6 +2223,60 @@
     link.remove();
 
     toast('経路画像を保存しました。Xの投稿画面に添付してください');
+  }
+
+  function canvasToBlob(canvas) {
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: 'image/png' });
+  }
+
+  function copyShareImage() {
+    if (route.filter(s => s.kind === 'drop').length !== MAX_ORDERS) return;
+
+    if (!navigator.clipboard || typeof window.ClipboardItem === 'undefined' || !window.isSecureContext) {
+      toast('この環境ではクリップボードにコピーできません。「画像を保存」を使ってください');
+      return;
+    }
+
+    let canvas = null;
+    try {
+      canvas = buildShareCanvas();
+    } catch (err) {
+      canvas = null;
+    }
+
+    if (!canvas) {
+      toast('経路画像を作れませんでした');
+      return;
+    }
+
+    let blob = null;
+    try {
+      blob = canvasToBlob(canvas);
+    } catch (err) {
+      blob = null;
+    }
+
+    if (!blob) {
+      toast('画像をコピーできませんでした。「画像を保存」を使ってください');
+      return;
+    }
+
+    try {
+      navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]).then(() => {
+        toast('経路画像をクリップボードにコピーしました');
+      }).catch(() => {
+        toast('画像をコピーできませんでした。「画像を保存」を使ってください');
+      });
+    } catch (err) {
+      toast('画像をコピーできませんでした。「画像を保存」を使ってください');
+    }
   }
 
   /* ---------- buttons ---------- */
@@ -2181,6 +2309,7 @@
 
   againBtn.addEventListener('click', resetRoute);
   saveImageBtn.addEventListener('click', downloadShareImage);
+  copyImageBtn.addEventListener('click', copyShareImage);
 
   /* ---------- start ---------- */
 
