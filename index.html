@@ -45,7 +45,7 @@
   }
 
   .app {
-    width: min(100%, 660px);
+    width: min(100%, 760px);
     margin: 0 auto;
     padding: max(14px, env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom));
   }
@@ -87,28 +87,52 @@
     font-weight: 900;
   }
 
-  h1 small {
-    display: inline-block;
-    margin-left: 7px;
-    padding: 4px 9px 5px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: rgba(255, 253, 248, .65);
-    color: var(--accent-deep);
-    font-size: .38em;
-    font-weight: 800;
-    letter-spacing: .02em;
-    vertical-align: .52em;
-    white-space: nowrap;
+  .hero-intro {
+    margin: 9px 0 0;
+    color: #676052;
+    font-size: 12px;
+    line-height: 1.65;
+    font-weight: 500;
   }
 
-  .lead {
-    margin: 8px 0 0;
-    max-width: 34em;
-    font-size: 12.5px;
-    line-height: 1.6;
-    color: #676052;
-    font-weight: 500;
+  .hero-intro p { margin: 0; }
+  .hero-intro p + p { margin-top: 2px; }
+  .hero-intro strong { color: #4e493e; font-weight: 800; }
+
+  .hero-links {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .rules-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .6);
+    color: #6f6555;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-decoration: none;
+    transition: background .15s ease, color .15s ease, transform .08s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .rules-link:hover {
+    background: var(--card);
+    color: var(--ink);
+  }
+
+  .rules-link:active { transform: scale(.97); }
+
+  .rules-link span {
+    color: #a89c89;
+    font-size: 11px;
   }
 
   /* ---------- scoreboard ---------- */
@@ -160,8 +184,7 @@
     color: var(--muted);
   }
 
-  #scoreValue { color: var(--accent-deep); }
-  #scoreValue.is-muted { color: #b9ae9c; }
+  #bestDistanceValue { color: var(--accent-deep); }
 
   .stat-sub {
     min-height: 13px;
@@ -547,14 +570,14 @@
     letter-spacing: .13em;
   }
 
-  .result-score {
+  .result-distance {
     display: flex;
     align-items: baseline;
     gap: 5px;
     line-height: 1;
   }
 
-  .result-score strong {
+  .result-distance strong {
     color: var(--accent-deep);
     font-size: clamp(22px, 7vw, 27px);
     font-weight: 900;
@@ -562,7 +585,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .result-score span {
+  .result-distance span {
     color: var(--muted);
     font-size: 9px;
     font-weight: 800;
@@ -788,26 +811,20 @@
     color: var(--muted);
     font-size: 11.5px;
     line-height: 1.7;
+    scroll-margin-top: 16px;
   }
 
-  .rules summary {
+  .rules-title {
+    margin: 0 0 9px;
     color: #625c50;
     font-size: 11.5px;
     font-weight: 800;
-    cursor: pointer;
-    list-style: none;
+    line-height: 1.5;
+    letter-spacing: .02em;
   }
-  .rules summary::-webkit-details-marker { display: none; }
-  .rules summary::after {
-    content: "＋";
-    float: right;
-    color: #a89c89;
-    font-weight: 600;
-  }
-  .rules[open] summary::after { content: "−"; }
 
   .rules ul {
-    margin: 9px 0 0;
+    margin: 0;
     padding-left: 1.25em;
   }
   .rules li + li { margin-top: 5px; }
@@ -856,10 +873,10 @@
   }
 
   .pop {
-    animation: scorePop .42s cubic-bezier(.34, 1.56, .64, 1);
+    animation: valuePop .42s cubic-bezier(.34, 1.56, .64, 1);
   }
 
-  @keyframes scorePop {
+  @keyframes valuePop {
     0% { transform: scale(.82); }
     58% { transform: scale(1.13); }
     100% { transform: scale(1); }
@@ -867,7 +884,7 @@
 
   @media (max-width: 380px) {
     .app { padding-left: 11px; padding-right: 11px; }
-    .lead { font-size: 11.5px; }
+    .hero-intro { font-size: 11.5px; }
     .stat { padding: 0 9px; }
     .legend { gap: 6px 10px; font-size: 10px; }
     .btn { font-size: 12px; }
@@ -875,9 +892,7 @@
 
   @media (max-height: 660px) and (orientation: portrait) {
     .app { padding-top: 10px; }
-    .lead { display: none; }
     h1 { margin-top: 6px; font-size: 27px; }
-    h1 small { font-size: .4em; }
     .scoreboard { margin-top: 9px; padding: 8px 2px; }
     .map-card { margin-top: 9px; }
     .legend { margin-top: 7px; }
@@ -902,8 +917,15 @@
       <span class="badge">AHC006</span>
       <span>Food Delivery / KomeKaigi2026用 非公式ミニ版</span>
     </div>
-    <h1>Food Delivery <small>26 → 6</small></h1>
-    <p class="lead">お店 a で受け取って、配達先 a′ へ。タップと並べ替えで、6件の注文を短い距離で届けよう。</p>
+    <h1>Food Delivery</h1>
+    <div class="hero-intro">
+      <p>26件の注文（a〜z）から<strong>好きな6件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</p>
+      <p>オレンジの四角がお店 <strong>a</strong>、青緑の丸が配達先 <strong>a′</strong>。同じ文字の2点が1つの注文です。</p>
+      <p>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</p>
+    </div>
+    <div class="hero-links">
+      <a class="rules-link" href="#rules">あそびかた / ルール <span aria-hidden="true">↓</span></a>
+    </div>
   </header>
 
   <section class="scoreboard" aria-label="現在の状況">
@@ -918,9 +940,9 @@
       <span class="stat-sub">マンハッタン</span>
     </div>
     <div class="stat">
-      <span class="stat-label">スコア</span>
-      <div class="stat-value is-muted" id="scoreValue">—</div>
-      <span class="stat-sub" id="bestValue">6件で確定</span>
+      <span class="stat-label">ベスト距離</span>
+      <div class="stat-value" id="bestDistanceValue">—</div>
+      <span class="stat-sub">小さいほど良い</span>
     </div>
   </section>
 
@@ -957,7 +979,7 @@
     <div class="result-top">
       <div class="result-main">
         <span class="result-kicker" id="resultKicker">配達完了</span>
-        <div class="result-score"><strong id="resultScore">0</strong><span>SCORE</span></div>
+        <div class="result-distance"><strong id="resultDistance">0</strong><span>DISTANCE</span></div>
         <span class="result-best" id="resultBest">BEST —</span>
       </div>
       <button type="button" class="result-btn again" id="againBtn">もう一度</button>
@@ -982,7 +1004,7 @@
 
   <p class="hint">
     <span id="hintMain">オレンジのお店をタップして、配達する注文を選ぼう。</span>
-    <small id="hintSub">6件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。</small>
+    <small id="hintSub">6件届けてオフィスに戻ればゴール。まとめ受け取りもOK。</small>
   </p>
 
   <div class="controls">
@@ -997,22 +1019,19 @@
     </button>
   </div>
 
-  <details class="rules">
-    <summary>あそびかた / 採点について</summary>
+  <section class="rules" id="rules" aria-labelledby="rulesTitle" tabindex="-1">
+    <h2 class="rules-title" id="rulesTitle">あそびかた / ルール</h2>
     <ul>
-      <li>26件の注文（a〜z）から<strong>好きな6件</strong>を選び、すべての配達先を回ってオフィスに戻れば完成です。</li>
-      <li>オレンジの四角がお店 <strong>a</strong>、青緑の丸が配達先 <strong>a′</strong>。同じ文字の2点が1つの注文です。</li>
-      <li>お店をタップ → その配達先をタップ。別の注文を先に受け取って、あとからまとめて届けてもかまいません。</li>
       <li><strong>「配達順」</strong>には、タップした地点が処理順に並びます。各チップをドラッグ＆ドロップすると順番を入れ替えられます。</li>
       <li>配達先を対応するお店より前に動かすような<strong>不正な順番</strong>にした場合は、メッセージを出して元の順番に戻ります。</li>
       <li>地図上のお店の文字をタップすると注文ごと、配達先の文字をタップすると配達先だけをルートから外せます。操作は「戻す / 進む」で何度でもやり直せます。</li>
       <li>PCでは、お店や配達先にカーソルを合わせると、同じ注文の2点と点線がハイライトされます。</li>
       <li>移動時間は<strong>マンハッタン距離</strong>（|xの差| + |yの差|）。オフィスを出て、最後にオフィスへ戻るまでの合計が T です。</li>
-      <li>スコアは <strong>round(10⁸ / (1000 + T))</strong>。T が短いほど高得点になります。</li>
-      <li>クリア後は「画像を保存」で経路画像をダウンロードし、「Xでポスト」からXの投稿画面を開けます。</li>
+      <li>移動距離 <strong>T</strong> が短いほど良い記録になります。ベスト距離はこのブラウザに保存されます。</li>
+      <li>クリア後は「画像を保存」または「画像をコピー」で経路画像を用意し、「Xでポスト」からXの投稿画面を開けます。</li>
       <li>注文データは、オフィスから遠い注文ほど「お店→配達先」が短めになるように調整した固定データです。</li>
     </ul>
-  </details>
+  </section>
 
   <footer>
     元問題: <a href="https://atcoder.jp/contests/ahc006/tasks/ahc006_a" target="_blank" rel="noopener">AtCoder Heuristic Contest 006 «Food Delivery»</a><br>
@@ -1088,8 +1107,7 @@
   const selectedValue = document.getElementById('selectedValue');
   const selectSub = document.getElementById('selectSub');
   const distanceValue = document.getElementById('distanceValue');
-  const scoreValue = document.getElementById('scoreValue');
-  const bestValue = document.getElementById('bestValue');
+  const bestDistanceValue = document.getElementById('bestDistanceValue');
   const hintMain = document.getElementById('hintMain');
   const hintSub = document.getElementById('hintSub');
   const undoBtn = document.getElementById('undoBtn');
@@ -1097,7 +1115,7 @@
   const resetBtn = document.getElementById('resetBtn');
   const result = document.getElementById('result');
   const resultKicker = document.getElementById('resultKicker');
-  const resultScore = document.getElementById('resultScore');
+  const resultDistance = document.getElementById('resultDistance');
   const resultBest = document.getElementById('resultBest');
   const againBtn = document.getElementById('againBtn');
   const saveImageBtn = document.getElementById('saveImageBtn');
@@ -1196,10 +1214,10 @@
   let history = [[]];
   let cursor = 0;
   let wasComplete = false;
-  let best = 0;
+  let best = null;
   let hoveredOrderId = null;
 
-  const BEST_KEY = 'ahc006-mini-best-v4';
+  const BEST_KEY = 'ahc006-mini-best-distance-v5';
   try {
     const stored = Number(window.localStorage.getItem(BEST_KEY));
     if (Number.isFinite(stored) && stored > 0) best = stored;
@@ -1224,10 +1242,6 @@
     }
     sum += Math.abs(prev.x - OFFICE.x) + Math.abs(prev.y - OFFICE.y);
     return sum;
-  }
-
-  function scoreFor(t) {
-    return Math.round(1e8 / (1000 + t));
   }
 
   /* ---------- history ---------- */
@@ -1325,11 +1339,10 @@
 
     const t = totalDistance();
     const complete = deliveredCount === MAX_ORDERS;
-    const score = complete ? scoreFor(t) : 0;
-    const prevBest = best;
+    const isNewBest = complete && (best === null || t < best);
 
-    if (complete && score > best) {
-      best = score;
+    if (isNewBest) {
+      best = t;
       saveBest();
     }
 
@@ -1338,31 +1351,21 @@
     selectSub.textContent = selectedCount < MAX_ORDERS
       ? 'あと' + (MAX_ORDERS - selectedCount) + '件'
       : (complete ? '配達完了' : '配達中');
-
-    if (complete) {
-      scoreValue.textContent = fmt(score);
-      scoreValue.classList.remove('is-muted');
-    } else {
-      scoreValue.textContent = '—';
-      scoreValue.classList.add('is-muted');
-    }
-
-    bestValue.textContent = best > 0 ? 'BEST ' + fmt(best) : MAX_ORDERS + '件で確定';
+    bestDistanceValue.textContent = best !== null ? fmt(best) : '—';
 
     if (complete) {
       result.hidden = false;
-      resultScore.textContent = fmt(score);
-      resultBest.textContent = best > 0 ? 'BEST ' + fmt(best) : 'BEST —';
-      postLink.href = xPostUrl(score);
-      const isNewBest = score > prevBest;
+      resultDistance.textContent = fmt(t);
+      resultBest.textContent = best !== null ? 'BEST ' + fmt(best) : 'BEST —';
+      postLink.href = xPostUrl(t);
       resultKicker.textContent = isNewBest ? 'NEW BEST' : '配達完了';
       if (!wasComplete) {
         toastEl.classList.remove('is-show');
       }
       if (!wasComplete || isNewBest) {
-        scoreValue.classList.remove('pop');
-        void scoreValue.offsetWidth;
-        scoreValue.classList.add('pop');
+        resultDistance.classList.remove('pop');
+        void resultDistance.offsetWidth;
+        resultDistance.classList.add('pop');
       }
       mapCard.classList.add('is-complete');
     } else {
@@ -1381,14 +1384,15 @@
     const waitingDrops = pickedCount - deliveredCount;
 
     if (complete) {
-      hintMain.textContent = '配達完了！ スコアは ' + fmt(scoreFor(t)) + ' 点です。';
-      hintSub.textContent = '総移動距離 T = ' + fmt(t) + '。もう一度挑戦するときは「リセット」。';
+      hintMain.textContent = '配達完了！ 移動距離は ' + fmt(t) + ' です。';
+      hintSub.textContent = 'ベスト距離 ' + (best !== null ? fmt(best) : '—') +
+        '。もう一度挑戦するときは「リセット」。';
       return;
     }
 
     if (route.length === 0) {
       hintMain.textContent = 'オレンジのお店をタップして、配達する注文を選ぼう。';
-      hintSub.textContent = MAX_ORDERS + '件届けてオフィスに戻るとスコア確定。まとめ受け取りもOK。';
+      hintSub.textContent = MAX_ORDERS + '件届けてオフィスに戻ればゴール。まとめ受け取りもOK。';
       return;
     }
 
@@ -1849,20 +1853,19 @@
     ctx.font = String(weight) + ' ' + size + 'px ' + SHARE_FONT;
   }
 
-  function tweetTextForScore(score) {
-    return 'AHC006 Food Delivery KomeKaigi2026ミニ版Edition でスコア ' + fmt(score) +
+  function tweetTextForDistance(distance) {
+    return 'AHC006 Food Delivery KomeKaigi2026ミニ版Edition で距離 ' + fmt(distance) +
       ' を達成しました！ #AHC006 #KomeKaigi2026';
   }
 
-  function xPostUrl(score) {
-    return 'https://x.com/intent/post?text=' + encodeURIComponent(tweetTextForScore(score));
+  function xPostUrl(distance) {
+    return 'https://x.com/intent/post?text=' + encodeURIComponent(tweetTextForDistance(distance));
   }
 
   function buildShareCanvas() {
     const W = 1080;
     const H = 1080;
     const t = totalDistance();
-    const score = scoreFor(t);
     const selectedIds = new Set(route.map(s => s.id));
     const selectedOrders = ORDERS.filter(o => selectedIds.has(o.id));
 
@@ -1925,13 +1928,13 @@
     ctx.textAlign = 'right';
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 13, 800);
-    ctx.fillText('SCORE', 1020, 72);
+    ctx.fillText('DISTANCE', 1020, 72);
     ctx.fillStyle = COL.accentDeep;
     setShareFont(ctx, 62, 900);
-    ctx.fillText(fmt(score), 1020, 142);
+    ctx.fillText(fmt(t), 1020, 142);
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 19, 600);
-    ctx.fillText('T = ' + fmt(t), 1020, 176);
+    ctx.fillText('BEST ' + fmt(best !== null ? best : t), 1020, 176);
 
     // 地図カード
     const mapX = 60;
@@ -2102,33 +2105,25 @@
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 12, 800);
-    ctx.fillText('DISTANCE T', px, 252);
-
-    ctx.fillStyle = COL.ink;
-    setShareFont(ctx, 34, 900);
-    ctx.fillText(fmt(t), px, 292);
-
-    ctx.fillStyle = COL.muted;
-    setShareFont(ctx, 12, 800);
-    ctx.fillText('ORDERS', px, 334);
+    ctx.fillText('ORDERS', px, 252);
 
     ctx.fillStyle = COL.ink;
     setShareFont(ctx, 22, 800);
-    ctx.fillText(selectedOrders.length + ' / 26', px, 366);
+    ctx.fillText(selectedOrders.length + ' / 26', px, 292);
 
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 12, 800);
-    ctx.fillText('STOPS', px, 406);
+    ctx.fillText('STOPS', px, 334);
 
     ctx.fillStyle = COL.ink;
     setShareFont(ctx, 22, 800);
-    ctx.fillText(String(route.length), px, 438);
+    ctx.fillText(String(route.length), px, 374);
 
     ctx.fillStyle = COL.muted;
     setShareFont(ctx, 12, 800);
-    ctx.fillText('SELECTED', px, 478);
+    ctx.fillText('SELECTED', px, 416);
 
-    let rowY = 510;
+    let rowY = 448;
     for (const stop of route.filter(s => s.kind === 'pickup')) {
       const order = ORDER_BY_ID.get(stop.id);
       ctx.fillStyle = COL.ink;
